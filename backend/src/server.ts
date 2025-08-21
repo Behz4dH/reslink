@@ -8,6 +8,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { pitchRouter } from './controllers/pitchController';
 
 dotenv.config();
+console.log("Hello World!");
+console.log("Loaded OPENAI_API_KEY:", process.env.OPENAI_API_KEY?.slice(0,10) + "...");
 
 const app = express();
 const PORT = process.env.PORT || 3001;

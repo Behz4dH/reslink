@@ -13,11 +13,11 @@ export const useTeleprompter = (_script: string) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const scrollSpeeds = {
-    1: 50,  // Very slow
-    2: 35,  // Slow
-    3: 25,  // Medium
-    4: 15,  // Fast
-    5: 10,  // Very fast
+    1: 2,   // Very slow - 2px per 50ms
+    2: 3,   // Slow - 3px per 50ms  
+    3: 4,   // Medium - 4px per 50ms
+    4: 6,   // Fast - 6px per 50ms
+    5: 8,   // Very fast - 8px per 50ms
   };
 
   useEffect(() => {
@@ -25,9 +25,9 @@ export const useTeleprompter = (_script: string) => {
       intervalRef.current = setInterval(() => {
         setSettings(prev => ({
           ...prev,
-          currentPosition: prev.currentPosition + 1,
+          currentPosition: prev.currentPosition + scrollSpeeds[settings.scrollSpeed],
         }));
-      }, scrollSpeeds[settings.scrollSpeed]);
+      }, 50); // Scroll every 50ms for smooth movement
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);

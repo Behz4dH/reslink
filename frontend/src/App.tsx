@@ -54,22 +54,18 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {state.currentStep === 'input' && (
-        <div className="container mx-auto px-4 py-8">
-          <PitchForm onSubmit={handlePitchSubmit} loading={loading} />
-        </div>
+        <PitchForm onSubmit={handlePitchSubmit} loading={loading} />
       )}
 
       {state.currentStep === 'editor' && state.pitch && (
-        <div className="container mx-auto px-4 py-8">
-          <ScriptEditor
-            pitch={state.pitch}
-            onScriptChange={handleScriptChange}
-            onPractice={handlePractice}
-            onStartOver={handleStartOver}
-          />
-        </div>
+        <ScriptEditor
+          pitch={state.pitch}
+          onScriptChange={handleScriptChange}
+          onPractice={handlePractice}
+          onStartOver={handleStartOver}
+        />
       )}
 
       {state.currentStep === 'teleprompter' && (

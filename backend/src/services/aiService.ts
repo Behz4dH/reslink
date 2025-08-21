@@ -1,8 +1,14 @@
 import OpenAI from 'openai';
 import { PitchInput, GeneratedPitch } from '../types';
+import dotenv from 'dotenv';
+dotenv.config();
 
+
+console.log("Together API Key:", process.env.OPENAI_API_KEY);
+console.log("Together API Key loaded:", process.env.OPENAI_API_KEY ? "Yes" : "No");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://api.together.xyz/v1", // 👈 important
 });
 
 export class AIService {
@@ -17,7 +23,7 @@ export class AIService {
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',
         messages: [
           {
             role: 'system',

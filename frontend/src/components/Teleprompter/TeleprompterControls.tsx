@@ -42,68 +42,130 @@ export const TeleprompterControls = ({
   isRecording,
 }: TeleprompterControlsProps) => {
   return (
-    <div className="bg-black bg-opacity-80 text-white p-4 space-y-4">
-      <div className="flex flex-wrap gap-3 items-center justify-center">
-        <Button
-          onClick={settings.isPlaying ? onPause : onPlay}
-          variant="primary"
-          size="sm"
-        >
-          {settings.isPlaying ? 'Pause' : 'Play'}
-        </Button>
+    <div className="space-y-6 flex-1">
+      {/* Playback Controls */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            onClick={settings.isPlaying ? onPause : onPlay}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            size="sm"
+          >
+            {settings.isPlaying ? '⏸️ Pause' : '▶️ Play'}
+          </Button>
 
-        <Button
-          onClick={onReset}
-          variant="secondary"
-          size="sm"
-        >
-          Reset
-        </Button>
+          <Button
+            onClick={onReset}
+            variant="secondary"
+            className="bg-slate-700 hover:bg-slate-600 text-white"
+            size="sm"
+          >
+            🔄 Reset
+          </Button>
+        </div>
 
         <Button
           onClick={isRecording ? onStopRecording : onStartRecording}
-          variant={isRecording ? 'danger' : 'primary'}
-          size="sm"
+          className={`w-full ${
+            isRecording 
+              ? 'bg-red-600 hover:bg-red-700' 
+              : 'bg-green-600 hover:bg-green-700'
+          } text-white font-semibold`}
+          size="lg"
         >
-          {isRecording ? 'Stop Recording' : 'Start Recording'}
+          {isRecording ? '⏹️ Stop Recording' : '🔴 Start Recording'}
         </Button>
+      </div>
 
+      {/* Font Size Slider */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <label className="text-white font-medium">Font size</label>
+          <span className="text-slate-300 text-sm">
+            {settings.fontSize === 'small' ? '24' : settings.fontSize === 'medium' ? '32' : '40'}
+          </span>
+        </div>
+        <div className="relative">
+          <input
+            type="range"
+            min="0"
+            max="2"
+            step="1"
+            value={settings.fontSize === 'small' ? 0 : settings.fontSize === 'medium' ? 1 : 2}
+            onChange={(e) => {
+              const sizes: TeleprompterSettings['fontSize'][] = ['small', 'medium', 'large'];
+              onFontSizeChange(sizes[Number(e.target.value)]);
+            }}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+          />
+        </div>
+        <div className="flex justify-between text-xs text-slate-400">
+          <span>A</span>
+          <span className="text-base">A</span>
+        </div>
+      </div>
+
+      {/* Speed Slider */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <label className="text-white font-medium">Teleprompter Speed</label>
+          <span className="text-slate-300 text-sm">{settings.scrollSpeed}</span>
+        </div>
+        <div className="relative">
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="1"
+            value={settings.scrollSpeed}
+            onChange={(e) => onScrollSpeedChange(Number(e.target.value) as TeleprompterSettings['scrollSpeed'])}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+          />
+        </div>
+        <div className="flex justify-between text-xs text-slate-400">
+          <span>🐌</span>
+          <span>🚀</span>
+        </div>
+      </div>
+
+      {/* Countdown */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <label className="text-white font-medium">Countdown</label>
+          <span className="text-slate-300 text-sm">3</span>
+        </div>
+        <div className="relative">
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step="1"
+            value="3"
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+          />
+        </div>
+        <div className="flex justify-between text-xs text-slate-400">
+          <span>⏰</span>
+          <span>⏰</span>
+        </div>
+      </div>
+
+      <div className="pt-6">
         <Button
           onClick={onExit}
           variant="secondary"
-          size="sm"
+          className="w-full bg-slate-700 hover:bg-slate-600 text-white"
         >
-          Exit
+          ← Back to Editor
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-center justify-center">
-        <div className="flex items-center gap-2">
-          <label className="text-sm">Font Size:</label>
-          <Select
-            value={settings.fontSize}
-            onChange={(e) => onFontSizeChange(e.target.value as TeleprompterSettings['fontSize'])}
-            options={fontSizeOptions}
-            className="text-black text-sm"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <label className="text-sm">Speed:</label>
-          <Select
-            value={settings.scrollSpeed}
-            onChange={(e) => onScrollSpeedChange(Number(e.target.value) as TeleprompterSettings['scrollSpeed'])}
-            options={scrollSpeedOptions}
-            className="text-black text-sm"
-          />
-        </div>
-      </div>
-
+      {/* Recording Status */}
       {isRecording && (
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">RECORDING</span>
+        <div className="bg-red-600/20 border border-red-500/30 rounded-lg p-3">
+          <div className="flex items-center gap-2 justify-center">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-red-400 font-medium text-sm">RECORDING</span>
           </div>
         </div>
       )}
