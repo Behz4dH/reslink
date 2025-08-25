@@ -4,9 +4,10 @@ import { GeneratedScriptModal } from './GeneratedScriptModal';
 interface PitchAIModalProps {
   onClose: () => void;
   onScriptGenerated: (script: string) => void;
+  resumeFile: File | null;
 }
 
-export const PitchAIModal = ({ onClose, onScriptGenerated }: PitchAIModalProps) => {
+export const PitchAIModal = ({ onClose, onScriptGenerated, resumeFile }: PitchAIModalProps) => {
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);

@@ -3,15 +3,23 @@ import { PitchAIModal } from './PitchAIModal';
 
 interface PitchCreationSectionProps {
   onStartRecording: () => void;
+  onPrevious: () => void;
   script: string;
   setScript: (script: string) => void;
+  resumeFile: File | null;
 }
 
-export const PitchCreationSection = ({ onStartRecording, script, setScript }: PitchCreationSectionProps) => {
+export const PitchCreationSection = ({ onStartRecording, onPrevious, script, setScript, resumeFile }: PitchCreationSectionProps) => {
   const [showPitchAI, setShowPitchAI] = useState(false);
+  const [teleprompterEnabled, setTeleprompterEnabled] = useState(true);
 
-  const handleWriteWithPitchAI = () => {
-    setShowPitchAI(true);
+  const handleStartRecording = () => {
+    // If no script, show PitchAI modal first
+    if (!script.trim()) {
+      setShowPitchAI(true);
+    } else {
+      onStartRecording();
+    }
   };
 
   const handlePitchAIClose = () => {
@@ -21,6 +29,12 @@ export const PitchCreationSection = ({ onStartRecording, script, setScript }: Pi
   const handleScriptGenerated = (generatedScript: string) => {
     setScript(generatedScript);
     setShowPitchAI(false);
+    // After script is generated, proceed to recording
+    onStartRecording();
+  };
+
+  const handleWriteWithPitchAI = () => {
+    setShowPitchAI(true);
   };
 
   return (
@@ -41,7 +55,7 @@ export const PitchCreationSection = ({ onStartRecording, script, setScript }: Pi
                 Use our built-in recorder to capture your pitch in minutes.
               </p>
               <button 
-                onClick={onStartRecording}
+                onClick={handleStartRecording}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
                 Start Recording
@@ -69,13 +83,21 @@ export const PitchCreationSection = ({ onStartRecording, script, setScript }: Pi
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">Teleprompter</h3>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 mr-2">Toggle on the teleprompter to display your script while recording.</span>
-                <div className="w-12 h-6 bg-blue-600 rounded-full relative">
-                  <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5"></div>
-                </div>
-              </div>
+              <button
+                onClick={() => setTeleprompterEnabled(!teleprompterEnabled)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                  teleprompterEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                } relative`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                  teleprompterEnabled ? 'translate-x-6' : 'translate-x-0.5'
+                }`}></div>
+              </button>
             </div>
+            
+            <p className="text-sm text-gray-500 mb-4">
+              Toggle on the teleprompter to display your script while recording.
+            </p>
             
             <div className="bg-gray-50 rounded-lg p-4 mb-4" style={{ height: '320px' }}>
               <textarea
@@ -98,7 +120,10 @@ export const PitchCreationSection = ({ onStartRecording, script, setScript }: Pi
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-12">
-        <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={onPrevious}
+          className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+        >
           Previous Step
         </button>
       </div>
@@ -108,6 +133,7 @@ export const PitchCreationSection = ({ onStartRecording, script, setScript }: Pi
         <PitchAIModal
           onClose={handlePitchAIClose}
           onScriptGenerated={handleScriptGenerated}
+          resumeFile={resumeFile}
         />
       )}
     </div>

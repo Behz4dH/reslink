@@ -1,10 +1,17 @@
-export const Header = () => {
+interface HeaderProps {
+  onNewReslink: () => void;
+}
+
+export const Header = ({ onNewReslink }: HeaderProps) => {
   return (
     <div className="fixed top-0 right-0 left-60 h-20 bg-white border-b border-gray-200 px-8 flex items-center justify-between z-40">
       <h1 className="text-2xl font-bold text-gray-900">CREATE A RESLINK</h1>
       
       <div className="flex items-center gap-4">
-        <button className="bg-lime-400 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-lime-500">
+        <button 
+          onClick={onNewReslink}
+          className="bg-lime-400 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-lime-500"
+        >
           + New Reslink
         </button>
         
