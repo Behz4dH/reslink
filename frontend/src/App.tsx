@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 import { PitchForm } from './components/PitchForm/PitchForm';
 import { ScriptEditor } from './components/ScriptEditor/ScriptEditor';
 import { Teleprompter } from './components/Teleprompter/Teleprompter';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import { usePitchGeneration } from './hooks/usePitchGeneration';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
@@ -9,6 +11,7 @@ function AppContent() {
   const { state, dispatch } = useAppContext();
   const { loading, error, generatePitch } = usePitchGeneration();
   const [, setSavedScript] = useLocalStorage('pitchcraft-script', '');
+  const [showDashboard, setShowDashboard] = useState(true);
 
   const handlePitchSubmit = async (input: any) => {
     try {
@@ -35,6 +38,11 @@ function AppContent() {
   const handleExitTeleprompter = () => {
     dispatch({ type: 'SET_STEP', payload: 'editor' });
   };
+
+  // Show dashboard by default
+  if (showDashboard) {
+    return <Dashboard />;
+  }
 
   if (error) {
     return (

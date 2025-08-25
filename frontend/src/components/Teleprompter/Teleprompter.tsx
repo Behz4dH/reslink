@@ -1,13 +1,21 @@
+import { useState } from 'react';
 import { useTeleprompter } from '../../hooks/useTeleprompter';
 import { useVideoRecording } from '../../hooks/useVideoRecording';
-import { TeleprompterControls } from './TeleprompterControls';
 
 interface TeleprompterProps {
   script: string;
   onExit: () => void;
 }
 
+type TeleprompterSettings = {
+  fontSize: 'small' | 'medium' | 'large';
+  scrollSpeed: 1 | 2 | 3 | 4 | 5;
+  isPlaying: boolean;
+  currentPosition: number;
+};
+
 export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
+  const [teleprompterEnabled, setTeleprompterEnabled] = useState(true);
   const {
     settings,
     containerRef,
@@ -37,12 +45,6 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
     pause(); // Automatically pause scrolling when recording stops
   };
 
-  const fontSizeClasses = {
-    small: 'text-2xl',
-    medium: 'text-4xl',
-    large: 'text-6xl',
-  };
-
   return (
     <div className="fixed inset-0 bg-gray-100 z-50">
       {/* Header */}
@@ -60,13 +62,13 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
         <div className="flex items-center gap-4">
           <span className="text-gray-600">Teleprompter</span>
           <button
-            onClick={() => {/* Toggle teleprompter */}}
+            onClick={() => setTeleprompterEnabled(!teleprompterEnabled)}
             className={`w-12 h-6 rounded-full transition-colors ${
-              true ? 'bg-blue-600' : 'bg-gray-300'
+              teleprompterEnabled ? 'bg-blue-600' : 'bg-gray-300'
             } relative`}
           >
             <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
-              true ? 'translate-x-6' : 'translate-x-0.5'
+              teleprompterEnabled ? 'translate-x-6' : 'translate-x-0.5'
             }`}></div>
           </button>
         </div>
@@ -112,33 +114,35 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
               )}
 
               {/* Teleprompter Text Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-full max-w-md text-center px-6">
-                  <div
-                    className="overflow-hidden relative"
-                    style={{ height: '150px' }}
-                  >
+              {teleprompterEnabled && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-full max-w-md text-center px-6">
                     <div
-                      className={`text-white leading-relaxed font-medium ${
-                        settings.fontSize === 'small' ? 'text-sm' : 
-                        settings.fontSize === 'medium' ? 'text-base' : 'text-lg'
-                      }`}
-                      style={{ 
-                        paddingBottom: '300px',
-                        transform: `translateY(-${settings.currentPosition}px)`,
-                        transition: 'transform 0.1s linear',
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
-                      }}
+                      className="overflow-hidden relative"
+                      style={{ height: '150px' }}
                     >
-                      {script.split('\n').map((paragraph, index) => (
-                        <p key={index} className="mb-4">
-                          {paragraph}
-                        </p>
-                      ))}
+                      <div
+                        className={`text-white leading-relaxed font-medium ${
+                          settings.fontSize === 'small' ? 'text-sm' : 
+                          settings.fontSize === 'medium' ? 'text-base' : 'text-lg'
+                        }`}
+                        style={{ 
+                          paddingBottom: '300px',
+                          transform: `translateY(-${settings.currentPosition}px)`,
+                          transition: 'transform 0.1s linear',
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                        }}
+                      >
+                        {script.split('\n').map((paragraph, index) => (
+                          <p key={index} className="mb-4">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Quick Controls */}
