@@ -12,6 +12,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 export const Dashboard = () => {
   const [currentStep, setCurrentStep] = useState(0); // 0 = dashboard view, 1-3 = create flow
@@ -81,8 +82,8 @@ export const Dashboard = () => {
               {currentStep === 0 && (
                 <>
                   <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">My Reslinks</h1>
-                    <p className="text-gray-600">Manage your professional video introductions</p>
+                    <h1 className="text-2xl font-semibold tracking-tight mb-2">My Reslinks</h1>
+                    <p className="text-muted-foreground">Manage your professional video introductions</p>
                   </div>
 
                   <SimpleReslinksTable data={reslinks} />
@@ -92,12 +93,13 @@ export const Dashboard = () => {
               {currentStep > 0 && (
                 <>
                   <div className="mb-4">
-                    <button 
+                    <Button 
+                      variant="ghost"
                       onClick={handleBackToDashboard}
-                      className="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-4"
+                      className="mb-4 p-0 h-auto"
                     >
                       ← Back to Dashboard
-                    </button>
+                    </Button>
                   </div>
                   
                   <ProgressSteps currentStep={currentStep} />

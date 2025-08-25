@@ -66,25 +66,17 @@ export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
       draft: 'secondary' as const,
       completed: 'outline' as const,
     };
-    const colors = {
-      active: 'bg-green-100 text-green-800 hover:bg-green-100',
-      draft: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
-      completed: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
-    };
     return (
-      <Badge 
-        variant={variants[status as keyof typeof variants]} 
-        className={colors[status as keyof typeof colors]}
-      >
+      <Badge variant={variants[status as keyof typeof variants]}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
   };
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       {/* Search and Filters */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b">
         <div className="flex gap-4">
           <Input
             type="text"
@@ -124,7 +116,7 @@ export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
               <TableRow key={reslink.id}>
                 <TableCell>
                   <div>
-                    <div className="font-medium text-gray-900">{reslink.name}</div>
+                    <div className="font-medium">{reslink.name}</div>
                     <div className="text-sm text-muted-foreground">{reslink.position} - {reslink.company}</div>
                   </div>
                 </TableCell>
