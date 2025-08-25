@@ -7,3 +7,5 @@ export { ResumeUploadStep } from './ResumeUploadStep';
 export { PitchCreationSection } from './PitchCreationSection';
 export { PitchAIModal } from './PitchAIModal';
 export { GeneratedScriptModal } from './GeneratedScriptModal';
+export { ReslinksTable } from './ReslinksTable';
+export { CreateReslinkFlow } from './CreateReslinkFlow';

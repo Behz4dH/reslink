@@ -21,20 +21,6 @@ export const Sidebar = () => {
             <span className="text-gray-900">🏠</span>
             Dashboard
           </div>
-          <div className="text-white hover:bg-blue-800 rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer">
-            <span>📄</span>
-            Resources
-          </div>
-          <div className="text-white hover:bg-blue-800 rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer">
-            <span>⚙️</span>
-            Account settings
-            <span className="ml-auto">▼</span>
-          </div>
-          <div className="text-white hover:bg-blue-800 rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer">
-            <span>❓</span>
-            Support
-            <span className="ml-auto">▼</span>
-          </div>
         </div>
       </nav>
 
