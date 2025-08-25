@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppSidebar } from '../app-sidebar';
 import { SiteHeader } from '../site-header';
 import { TitleStep } from './TitleStep';
@@ -7,7 +7,8 @@ import { PitchCreationSection } from './PitchCreationSection';
 import { ProgressSteps } from './ProgressSteps';
 import { Teleprompter } from '../Teleprompter/Teleprompter';
 import { SimpleReslinksTable } from './SimpleReslinksTable';
-import { mockReslinks } from '../../types/reslink';
+import { apiService } from '../../services/api';
+import type { Reslink } from '../../types/reslink';
 import {
   SidebarInset,
   SidebarProvider,
@@ -20,7 +21,29 @@ export const Dashboard = () => {
   const [reslinkTitle, setReslinkTitle] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [script, setScript] = useState('');
-  const [reslinks] = useState(mockReslinks);
+  const [reslinks, setReslinks] = useState<Reslink[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch reslinks from API
+  useEffect(() => {
+    const fetchReslinks = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiService.getAllReslinks();
+        setReslinks(data);
+      } catch (err) {
+        console.error('Failed to fetch reslinks:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load reslinks');
+        setReslinks([]); // Fallback to empty array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReslinks();
+  }, []);
 
   const handleNewReslink = () => {
     setCurrentStep(1); // Start the create flow
@@ -86,7 +109,7 @@ export const Dashboard = () => {
                     <p className="text-muted-foreground">Manage your professional video introductions</p>
                   </div>
 
-                  <SimpleReslinksTable data={reslinks} />
+                  <SimpleReslinksTable data={reslinks} loading={loading} error={error} />
                 </>
               )}
 

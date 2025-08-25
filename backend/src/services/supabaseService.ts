@@ -1,0 +1,149 @@
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+
+let supabase: any = null;
+
+if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-supabase') || supabaseKey.includes('your-supabase')) {
+  console.warn('Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+} else {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('Supabase client initialized successfully');
+  } catch (error) {
+    console.error('Error initializing Supabase client:', error);
+  }
+}
+
+export class SupabaseStorageService {
+  private bucketName = 'reslinkVids';
+
+  // Upload video file to Supabase Storage
+  async uploadVideo(filePath: string, fileName: string): Promise<{ url: string; path: string }> {
+    if (!supabase) {
+      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+    }
+
+    try {
+      // Read the file
+      const fileBuffer = fs.readFileSync(filePath);
+      
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const uniqueFileName = `${timestamp}-${fileName}`;
+      const storagePath = `videos/${uniqueFileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from(this.bucketName)
+        .upload(storagePath, fileBuffer, {
+          contentType: 'video/mp4',
+          upsert: false
+        });
+
+      if (error) {
+        throw new Error(`Supabase upload error: ${error.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(this.bucketName)
+        .getPublicUrl(storagePath);
+
+      // Clean up temp file
+      fs.unlinkSync(filePath);
+
+      return {
+        url: urlData.publicUrl,
+        path: storagePath
+      };
+    } catch (error) {
+      // Clean up temp file on error
+      try {
+        fs.unlinkSync(filePath);
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp file:', cleanupError);
+      }
+      
+      throw error;
+    }
+  }
+
+  // Upload resume file to Supabase Storage
+  async uploadResume(filePath: string, fileName: string): Promise<{ url: string; path: string }> {
+    if (!supabase) {
+      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+    }
+
+    try {
+      // Read the file
+      const fileBuffer = fs.readFileSync(filePath);
+      
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const uniqueFileName = `${timestamp}-${fileName}`;
+      const storagePath = `resumes/${uniqueFileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from(this.bucketName)
+        .upload(storagePath, fileBuffer, {
+          contentType: 'application/pdf',
+          upsert: false
+        });
+
+      if (error) {
+        throw new Error(`Supabase upload error: ${error.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(this.bucketName)
+        .getPublicUrl(storagePath);
+
+      // Clean up temp file
+      fs.unlinkSync(filePath);
+
+      return {
+        url: urlData.publicUrl,
+        path: storagePath
+      };
+    } catch (error) {
+      // Clean up temp file on error
+      try {
+        fs.unlinkSync(filePath);
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp file:', cleanupError);
+      }
+      
+      throw error;
+    }
+  }
+
+  // Delete file from Supabase Storage
+  async deleteFile(storagePath: string): Promise<void> {
+    const { error } = await supabase.storage
+      .from(this.bucketName)
+      .remove([storagePath]);
+
+    if (error) {
+      throw new Error(`Supabase delete error: ${error.message}`);
+    }
+  }
+
+  // Check if bucket exists (skip creation since it's done manually)
+  async initializeBucket(): Promise<void> {
+    if (!supabase) {
+      console.log('Skipping Supabase bucket initialization - client not configured');
+      return;
+    }
+
+    console.log(`Using existing Supabase storage bucket: ${this.bucketName}`);
+  }
+}
+
+export default SupabaseStorageService;

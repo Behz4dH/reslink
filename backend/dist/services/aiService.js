@@ -5,8 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIService = void 0;
 const openai_1 = __importDefault(require("openai"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+console.log("Together API Key:", process.env.OPENAI_API_KEY);
+console.log("Together API Key loaded:", process.env.OPENAI_API_KEY ? "Yes" : "No");
 const openai = new openai_1.default({
     apiKey: process.env.OPENAI_API_KEY,
+    baseURL: "https://api.together.xyz/v1", // 👈 important
 });
 class AIService {
     static async generatePitch(input) {
@@ -17,7 +22,7 @@ class AIService {
         const prompt = this.buildPrompt(description, length, tone);
         try {
             const response = await openai.chat.completions.create({
-                model: 'gpt-3.5-turbo',
+                model: 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',
                 messages: [
                     {
                         role: 'system',

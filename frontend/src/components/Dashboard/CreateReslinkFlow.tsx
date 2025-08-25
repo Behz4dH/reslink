@@ -41,7 +41,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
     setShowTeleprompter(true);
   };
 
-  const handleExitTeleprompter = () => {
+  const handleExitTeleprompter = (uploadedVideoUrl?: string) => {
     setShowTeleprompter(false);
     // Here you would typically save the reslink and complete the flow
     const newReslink = {
@@ -51,7 +51,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
       position: reslinkTitle.split(' - ')[1] || 'Position',
       company: reslinkTitle.split(' - ')[2] || 'Company',
       createdDate: new Date().toISOString().split('T')[0],
-      videoUrl: '/videos/new-recording.mp4', // This would be the actual recorded video
+      videoUrl: uploadedVideoUrl || '/videos/new-recording.mp4', // Use the uploaded video URL
       resumeUrl: resumeFile ? URL.createObjectURL(resumeFile) : '',
       status: 'completed' as const,
     };

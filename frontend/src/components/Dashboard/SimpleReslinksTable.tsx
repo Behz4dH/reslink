@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlayIcon, DownloadIcon } from 'lucide-react';
+import { PlayIcon, DownloadIcon, LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,23 +19,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-interface Reslink {
-  id: string;
-  title: string;
-  name: string;
-  position: string;
-  company: string;
-  createdDate: string;
-  videoUrl: string;
-  resumeUrl: string;
-  status: 'active' | 'draft' | 'completed';
-}
+import type { Reslink } from '../../types/reslink';
+
 
 interface SimpleReslinksTableProps {
   data: Reslink[];
+  loading?: boolean;
+  error?: string | null;
 }
 
-export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
+export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -47,28 +40,31 @@ export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
     return matchesSearch && matchesStatus;
   });
 
-  const handleVideoPlay = (videoUrl: string) => {
+  const handleVideoPlay = (videoUrl: string | undefined) => {
     if (videoUrl) {
       window.open(videoUrl, '_blank');
     }
   };
 
-  const handleResumeDownload = (resumeUrl: string, name: string) => {
-    const link = document.createElement('a');
-    link.href = resumeUrl;
-    link.download = `${name}-resume.pdf`;
-    link.click();
+  const handleResumeDownload = (resumeUrl: string | undefined, name: string) => {
+    if (resumeUrl) {
+      const link = document.createElement('a');
+      link.href = resumeUrl;
+      link.download = `${name}-resume.pdf`;
+      link.click();
+    }
   };
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: 'default' as const,
       draft: 'secondary' as const,
-      completed: 'outline' as const,
+      published: 'default' as const,
+      viewed: 'outline' as const,
+      multiple_views: 'destructive' as const,
     };
     return (
-      <Badge variant={variants[status as keyof typeof variants]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>
+        {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
       </Badge>
     );
   };
@@ -91,9 +87,10 @@ export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="viewed">Viewed</SelectItem>
+              <SelectItem value="multiple_views">Multiple Views</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -112,47 +109,74 @@ export function SimpleReslinksTable({ data }: SimpleReslinksTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((reslink) => (
-              <TableRow key={reslink.id}>
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{reslink.name}</div>
-                    <div className="text-sm text-muted-foreground">{reslink.position} - {reslink.company}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm">
-                  {new Date(reslink.createdDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {getStatusBadge(reslink.status)}
-                </TableCell>
-                <TableCell>
-                  {reslink.videoUrl ? (
-                    <Button
-                      onClick={() => handleVideoPlay(reslink.videoUrl)}
-                      size="sm"
-                      className="h-8"
-                    >
-                      <PlayIcon className="h-3 w-3 mr-1" />
-                      Play
-                    </Button>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">No video</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => handleResumeDownload(reslink.resumeUrl, reslink.name)}
-                    variant="outline"
-                    size="sm"
-                    className="h-8"
-                  >
-                    <DownloadIcon className="h-3 w-3 mr-1" />
-                    Download
-                  </Button>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  <LoaderIcon className="h-6 w-6 animate-spin mx-auto mb-2" />
+                  <div className="text-muted-foreground">Loading reslinks...</div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  <div className="text-destructive">{error}</div>
+                </TableCell>
+              </TableRow>
+            ) : filteredData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  <div className="text-muted-foreground">No reslinks found</div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredData.map((reslink) => (
+                <TableRow key={reslink.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{reslink.name}</div>
+                      <div className="text-sm text-muted-foreground">{reslink.position} - {reslink.company}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {reslink.created_date ? new Date(reslink.created_date).toLocaleDateString() : 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(reslink.status)}
+                      {reslink.view_count > 0 && (
+                        <span className="text-sm text-muted-foreground">({reslink.view_count} views)</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {reslink.video_url ? (
+                      <Button
+                        onClick={() => handleVideoPlay(reslink.video_url)}
+                        size="sm"
+                        className="h-8"
+                      >
+                        <PlayIcon className="h-3 w-3 mr-1" />
+                        Play
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">No video</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => handleResumeDownload(reslink.resume_url, reslink.name)}
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      disabled={!reslink.resume_url}
+                    >
+                      <DownloadIcon className="h-3 w-3 mr-1" />
+                      Download
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

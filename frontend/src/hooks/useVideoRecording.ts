@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import type { VideoRecordingState, MediaConstraints } from '../types';
+import { apiService } from '../services/api';
 
 const DEFAULT_CONSTRAINTS: MediaConstraints = {
   video: {
@@ -21,6 +22,9 @@ export const useVideoRecording = () => {
     duration: 0,
     error: null,
   });
+
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -56,7 +60,16 @@ export const useVideoRecording = () => {
         }
       };
 
-      mediaRecorder.onstop = () => {
+      // Download the recorded video
+      // const url = URL.createObjectURL(blob);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = `pitch-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.webm`;
+      // document.body.appendChild(a);
+      // a.click();
+      // document.body.removeChild(a);
+      // URL.revokeObjectURL(url);
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
         setState(prev => ({
           ...prev,
@@ -65,15 +78,27 @@ export const useVideoRecording = () => {
           isPaused: false,
         }));
 
-        // Download the recorded video
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `pitch-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.webm`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Upload the recorded video to Supabase
+        try {
+          setIsUploading(true);
+          const filename = `pitch-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.webm`;
+          const videoFile = new File([blob], filename, { type: 'video/webm' });
+          
+          console.log('Uploading video to Supabase...');
+          const uploadResult = await apiService.uploadVideo(videoFile);
+          
+          console.log('Video uploaded successfully:', uploadResult.url);
+          setUploadedVideoUrl(uploadResult.url);
+          
+        } catch (error) {
+          console.error('Video upload failed:', error);
+          setState(prev => ({
+            ...prev,
+            error: error instanceof Error ? error.message : 'Failed to upload video',
+          }));
+        } finally {
+          setIsUploading(false);
+        }
 
         // Clean up
         if (streamRef.current) {
@@ -157,5 +182,7 @@ export const useVideoRecording = () => {
     pauseRecording,
     resumeRecording,
     videoRef,
+    uploadedVideoUrl,
+    isUploading,
   };
 };

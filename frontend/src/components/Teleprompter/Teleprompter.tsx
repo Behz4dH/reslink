@@ -4,7 +4,7 @@ import { useVideoRecording } from '../../hooks/useVideoRecording';
 
 interface TeleprompterProps {
   script: string;
-  onExit: () => void;
+  onExit: (uploadedVideoUrl?: string) => void;
 }
 
 type TeleprompterSettings = {
@@ -31,6 +31,9 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
     startRecording,
     stopRecording,
     videoRef,
+    uploadedVideoUrl,
+    isUploading,
+    error,
   } = useVideoRecording();
 
   // Auto-start teleprompter when recording starts
@@ -45,16 +48,22 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
     pause(); // Automatically pause scrolling when recording stops
   };
 
+  // Handle exit with uploaded video URL
+  const handleExit = () => {
+    onExit(uploadedVideoUrl || undefined);
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-100 z-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={onExit}
+            onClick={handleExit}
             className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
+            disabled={isUploading}
           >
-            ← Back
+            ← Back {isUploading && '(Uploading...)'}
           </button>
           <h1 className="text-xl font-semibold text-gray-900">RECORD YOUR PITCH</h1>
         </div>
@@ -110,6 +119,29 @@ export const Teleprompter = ({ script, onExit }: TeleprompterProps) => {
                 <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                   1:24
+                </div>
+              )}
+
+              {/* Upload Status */}
+              {isUploading && (
+                <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-white rounded-full animate-spin"></div>
+                  Uploading...
+                </div>
+              )}
+
+              {/* Upload Success */}
+              {uploadedVideoUrl && !isUploading && (
+                <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                  Uploaded ✓
+                </div>
+              )}
+
+              {/* Error Display */}
+              {error && (
+                <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  Upload failed
                 </div>
               )}
 
