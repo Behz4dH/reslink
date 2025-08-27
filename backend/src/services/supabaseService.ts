@@ -4,14 +4,17 @@ import path from 'path';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
 
 let supabase: any = null;
 
 if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-supabase') || supabaseKey.includes('your-supabase')) {
-  console.warn('Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+  console.warn('Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env');
 } else {
   try {
+    const keyType = process.env.SUPABASE_SERVICE_ROLE_KEY ? 'service_role' : 'anon';
+    console.log(`Supabase client initialized with ${keyType} key`);
+    console.log('Key starts with:', supabaseKey.substring(0, 20) + '...');
     supabase = createClient(supabaseUrl, supabaseKey);
     console.log('Supabase client initialized successfully');
   } catch (error) {
@@ -25,7 +28,7 @@ export class SupabaseStorageService {
   // Upload video file to Supabase Storage
   async uploadVideo(filePath: string, fileName: string): Promise<{ url: string; path: string }> {
     if (!supabase) {
-      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env');
     }
 
     try {
@@ -37,15 +40,24 @@ export class SupabaseStorageService {
       const uniqueFileName = `${timestamp}-${fileName}`;
       const storagePath = `videos/${uniqueFileName}`;
 
+      // Determine content type based on file extension
+      const ext = path.extname(fileName).toLowerCase();
+      let contentType = 'video/mp4'; // default
+      if (ext === '.webm') contentType = 'video/webm';
+      else if (ext === '.mov') contentType = 'video/quicktime';
+
+      console.log(`Uploading to bucket: ${this.bucketName}, path: ${storagePath}, size: ${fileBuffer.length} bytes`);
+
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from(this.bucketName)
         .upload(storagePath, fileBuffer, {
-          contentType: 'video/mp4',
+          contentType,
           upsert: false
         });
 
       if (error) {
+        console.error('Detailed Supabase error:', JSON.stringify(error, null, 2));
         throw new Error(`Supabase upload error: ${error.message}`);
       }
 
@@ -76,7 +88,7 @@ export class SupabaseStorageService {
   // Upload resume file to Supabase Storage
   async uploadResume(filePath: string, fileName: string): Promise<{ url: string; path: string }> {
     if (!supabase) {
-      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+      throw new Error('Supabase client not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env');
     }
 
     try {

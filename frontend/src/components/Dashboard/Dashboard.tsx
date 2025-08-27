@@ -68,10 +68,51 @@ export const Dashboard = () => {
     setShowTeleprompter(true);
   };
 
-  const handleExitTeleprompter = () => {
+  const handleExitTeleprompter = async (uploadedVideoUrl?: string) => {
+    console.log('🔥 handleExitTeleprompter called with uploadedVideoUrl:', uploadedVideoUrl);
     setShowTeleprompter(false);
+    
+    if (uploadedVideoUrl) {
+      try {
+        let resumeUrl = '';
+        
+        // Upload resume file if provided
+        if (resumeFile) {
+          console.log('Uploading resume file...');
+          const resumeUploadResult = await apiService.uploadResume(resumeFile);
+          resumeUrl = resumeUploadResult.url;
+        }
+
+        // Create reslink in database
+        console.log('Creating reslink in database...');
+        const newReslinkData = {
+          title: reslinkTitle,
+          name: reslinkTitle.split(' - ')[0] || reslinkTitle,
+          position: reslinkTitle.split(' - ')[1] || 'Position', 
+          company: reslinkTitle.split(' - ')[2] || 'Company',
+          video_url: uploadedVideoUrl,
+          resume_url: resumeUrl,
+          status: 'draft' as const,
+        };
+        
+        const savedReslink = await apiService.createReslink(newReslinkData);
+        console.log('Reslink created successfully:', savedReslink);
+        
+        // Add the new reslink to the list
+        setReslinks(prev => [savedReslink, ...prev]);
+        
+      } catch (error) {
+        console.error('Error creating reslink:', error);
+        setError('Failed to create reslink. Please try again.');
+      }
+    }
+    
     // Reset back to dashboard
     setCurrentStep(0);
+    // Reset form data
+    setReslinkTitle('');
+    setResumeFile(null);
+    setScript('');
   };
 
   const handleBackToDashboard = () => {

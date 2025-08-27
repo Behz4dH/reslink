@@ -25,6 +25,8 @@ export const useVideoRecording = () => {
 
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [recordedVideoBlob, setRecordedVideoBlob] = useState<Blob | null>(null);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -78,27 +80,12 @@ export const useVideoRecording = () => {
           isPaused: false,
         }));
 
-        // Upload the recorded video to Supabase
-        try {
-          setIsUploading(true);
-          const filename = `pitch-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.webm`;
-          const videoFile = new File([blob], filename, { type: 'video/webm' });
-          
-          console.log('Uploading video to Supabase...');
-          const uploadResult = await apiService.uploadVideo(videoFile);
-          
-          console.log('Video uploaded successfully:', uploadResult.url);
-          setUploadedVideoUrl(uploadResult.url);
-          
-        } catch (error) {
-          console.error('Video upload failed:', error);
-          setState(prev => ({
-            ...prev,
-            error: error instanceof Error ? error.message : 'Failed to upload video',
-          }));
-        } finally {
-          setIsUploading(false);
-        }
+        // Create local URL for preview (no upload yet)
+        const localVideoUrl = URL.createObjectURL(blob);
+        setRecordedVideoBlob(blob);
+        setRecordedVideoUrl(localVideoUrl);
+
+        console.log('Video recorded successfully. Ready for review.');
 
         // Clean up
         if (streamRef.current) {
@@ -175,14 +162,61 @@ export const useVideoRecording = () => {
     }
   }, [state.isRecording, state.isPaused, state.duration]);
 
+  // Upload the recorded video to Supabase
+  const uploadRecordedVideo = useCallback(async (): Promise<string | null> => {
+    if (!recordedVideoBlob) {
+      console.error('No recorded video to upload');
+      return null;
+    }
+
+    try {
+      setIsUploading(true);
+      const filename = `pitch-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.webm`;
+      const videoFile = new File([recordedVideoBlob], filename, { type: 'video/webm' });
+      
+      console.log('Uploading video to Supabase...');
+      const uploadResult = await apiService.uploadVideo(videoFile);
+      
+      console.log('Video uploaded successfully:', uploadResult.url);
+      setUploadedVideoUrl(uploadResult.url);
+      
+      return uploadResult.url;
+      
+    } catch (error) {
+      console.error('Video upload failed:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to upload video',
+      }));
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  }, [recordedVideoBlob]);
+
+  // Discard the recorded video
+  const discardRecording = useCallback(() => {
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl);
+    }
+    setRecordedVideoBlob(null);
+    setRecordedVideoUrl(null);
+    setUploadedVideoUrl(null);
+    setState(prev => ({ ...prev, recordedBlob: null, error: null }));
+  }, [recordedVideoUrl]);
+
   return {
     ...state,
     startRecording,
     stopRecording,
     pauseRecording,
     resumeRecording,
+    uploadRecordedVideo,
+    discardRecording,
     videoRef,
     uploadedVideoUrl,
     isUploading,
+    recordedVideoUrl,
+    hasRecording: !!recordedVideoBlob,
   };
 };

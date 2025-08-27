@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
+import { apiService } from '../../services/api';
 
 interface CreateReslinkFlowProps {
   open: boolean;
@@ -41,23 +42,54 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
     setShowTeleprompter(true);
   };
 
-  const handleExitTeleprompter = (uploadedVideoUrl?: string) => {
+  const handleExitTeleprompter = async (uploadedVideoUrl?: string) => {
     setShowTeleprompter(false);
-    // Here you would typically save the reslink and complete the flow
-    const newReslink = {
-      id: Date.now().toString(),
-      title: reslinkTitle,
-      name: reslinkTitle.split(' - ')[0] || reslinkTitle,
-      position: reslinkTitle.split(' - ')[1] || 'Position',
-      company: reslinkTitle.split(' - ')[2] || 'Company',
-      createdDate: new Date().toISOString().split('T')[0],
-      videoUrl: uploadedVideoUrl || '/videos/new-recording.mp4', // Use the uploaded video URL
-      resumeUrl: resumeFile ? URL.createObjectURL(resumeFile) : '',
-      status: 'completed' as const,
-    };
-    onComplete(newReslink);
-    onClose();
-    resetFlow();
+    
+    try {
+      let resumeUrl = '';
+      
+      // Upload resume file if provided
+      if (resumeFile) {
+        console.log('Uploading resume file...');
+        const resumeUploadResult = await apiService.uploadResume(resumeFile);
+        resumeUrl = resumeUploadResult.url;
+      }
+
+      // Create reslink in database
+      console.log('Creating reslink in database...');
+      const newReslinkData = {
+        title: reslinkTitle,
+        name: reslinkTitle.split(' - ')[0] || reslinkTitle,
+        position: reslinkTitle.split(' - ')[1] || 'Position', 
+        company: reslinkTitle.split(' - ')[2] || 'Company',
+        video_url: uploadedVideoUrl || '',
+        resume_url: resumeUrl,
+        status: 'draft' as const,
+      };
+      
+      const savedReslink = await apiService.createReslink(newReslinkData);
+      console.log('Reslink created successfully:', savedReslink);
+      
+      onComplete(savedReslink);
+    } catch (error) {
+      console.error('Error creating reslink:', error);
+      // Still complete the flow even if save fails, but with local data
+      const fallbackReslink = {
+        id: Date.now().toString(),
+        title: reslinkTitle,
+        name: reslinkTitle.split(' - ')[0] || reslinkTitle,
+        position: reslinkTitle.split(' - ')[1] || 'Position',
+        company: reslinkTitle.split(' - ')[2] || 'Company',
+        createdDate: new Date().toISOString().split('T')[0],
+        videoUrl: uploadedVideoUrl || '/videos/new-recording.mp4',
+        resumeUrl: resumeFile ? URL.createObjectURL(resumeFile) : '',
+        status: 'draft' as const,
+      };
+      onComplete(fallbackReslink);
+    } finally {
+      onClose();
+      resetFlow();
+    }
   };
 
   const resetFlow = () => {
