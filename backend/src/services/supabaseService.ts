@@ -136,6 +136,52 @@ export class SupabaseStorageService {
     }
   }
 
+  // Upload file from buffer (for profile pictures, etc.)
+  async uploadFile(buffer: Buffer, fileName: string, contentType: string): Promise<{ success: boolean; publicUrl?: string; error?: string }> {
+    if (!supabase) {
+      return {
+        success: false,
+        error: 'Supabase client not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env'
+      };
+    }
+
+    try {
+      console.log(`Uploading to bucket: ${this.bucketName}, path: ${fileName}, size: ${buffer.length} bytes`);
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from(this.bucketName)
+        .upload(fileName, buffer, {
+          contentType,
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Detailed Supabase error:', JSON.stringify(error, null, 2));
+        return {
+          success: false,
+          error: `Supabase upload error: ${error.message}`
+        };
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(this.bucketName)
+        .getPublicUrl(fileName);
+
+      return {
+        success: true,
+        publicUrl: urlData.publicUrl
+      };
+    } catch (error) {
+      console.error('Upload error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown upload error'
+      };
+    }
+  }
+
   // Delete file from Supabase Storage
   async deleteFile(storagePath: string): Promise<void> {
     const { error } = await supabase.storage
