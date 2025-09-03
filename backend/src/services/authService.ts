@@ -49,7 +49,7 @@ export class AuthService {
 
     // Find user
     const user = await DatabaseService.executeQuerySingle<User & { password_hash: string }>(
-      'SELECT * FROM users WHERE username = ? AND is_active = 1',
+      'SELECT * FROM users WHERE username = ? AND is_active = true',
       [username]
     );
 
