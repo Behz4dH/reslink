@@ -26,15 +26,32 @@ export class AuthService {
 
     // Insert new user
     const result = await DatabaseService.executeCommand(
-      `INSERT INTO users (username, email, password_hash, role) 
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO users (username, email, password_hash, role, is_active) 
+       VALUES (?, ?, ?, ?, true)`,
       [username, email, passwordHash, role]
     );
+
+    // Get the user ID (different for SQLite vs PostgreSQL)
+    let userId: number;
+    if (result.lastInsertRowid) {
+      // SQLite
+      userId = result.lastInsertRowid as number;
+    } else {
+      // PostgreSQL - get the most recently created user with this username
+      const newUser = await DatabaseService.executeQuerySingle<{id: number}>(
+        'SELECT id FROM users WHERE username = ? ORDER BY created_date DESC LIMIT 1',
+        [username]
+      );
+      if (!newUser) {
+        throw new Error('Failed to retrieve created user');
+      }
+      userId = newUser.id;
+    }
 
     // Fetch created user
     const user = await DatabaseService.executeQuerySingle<User>(
       'SELECT id, username, email, role, created_date, last_login, is_active FROM users WHERE id = ?',
-      [result.lastInsertRowid]
+      [userId]
     );
 
     if (!user) {
