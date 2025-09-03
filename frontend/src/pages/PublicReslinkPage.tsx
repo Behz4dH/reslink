@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { PlayIcon, DownloadIcon, UserIcon, BriefcaseIcon, ArrowLeftIcon, LogOutIcon, LinkedinIcon } from 'lucide-react';
 import { apiService } from '../services/api';

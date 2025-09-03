@@ -11,7 +11,7 @@ import {
   SettingsIcon,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 import { useTheme } from "@/contexts/ThemeContext"
 import { UserProfileSheet } from "@/components/UserProfile/UserProfileSheet"

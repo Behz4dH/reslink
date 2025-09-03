@@ -26,7 +26,7 @@
 // } from "lucide-react"
 
 // import { Badge } from "../ui/badge"
-// import { Button } from "../ui/button"
+// import { Button } from "../ui/Button"
 // import {
 //   DropdownMenu,
 //   DropdownMenuCheckboxItem,
@@ -43,7 +43,7 @@
 //   SelectItem,
 //   SelectTrigger,
 //   SelectValue,
-// } from "../ui/select"
+// } from "../ui/Select"
 // import {
 //   Table,
 //   TableBody,

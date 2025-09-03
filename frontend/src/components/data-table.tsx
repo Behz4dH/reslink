@@ -54,7 +54,7 @@ import { z } from "zod"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import {
   ChartConfig,
   ChartContainer,
@@ -78,7 +78,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/Select"
 import { Separator } from "@/components/ui/separator"
 import {
   Sheet,

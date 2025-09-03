@@ -16,7 +16,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 export const Dashboard = () => {
   const [currentStep, setCurrentStep] = useState(0); // 0 = dashboard view, 1-3 = create flow

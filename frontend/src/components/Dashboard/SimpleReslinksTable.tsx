@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PlayIcon, DownloadIcon, LoaderIcon, EyeIcon, BadgeIcon, ExternalLinkIcon } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { ViewerStatsDialog } from './ViewerStatsDialog';
 import { getReslinkPublicUrl } from '../../utils/slugUtils';
@@ -12,7 +12,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/Select';
 import {
   Table,
   TableBody,

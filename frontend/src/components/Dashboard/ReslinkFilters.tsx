@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import {
@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '../ui/Select';
 import { Badge } from '../ui/badge';
 import { Search, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 

@@ -4,7 +4,7 @@ import { ResumeUploadStep } from './ResumeUploadStep';
 import { PitchCreationSection } from './PitchCreationSection';
 import { ProgressSteps } from './ProgressSteps';
 import { Teleprompter } from '../Teleprompter/Teleprompter';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import {
   Dialog,
   DialogContent,
