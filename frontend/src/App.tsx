@@ -1,9 +1,14 @@
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useAppContext } from './contexts/AppContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { PitchForm } from './components/PitchForm/PitchForm';
 import { ScriptEditor } from './components/ScriptEditor/ScriptEditor';
 import { Teleprompter } from './components/Teleprompter/Teleprompter';
 import { Dashboard } from './components/Dashboard/Dashboard';
+import { PublicReslinkPage } from './pages/PublicReslinkPage';
 import { usePitchGeneration } from './hooks/usePitchGeneration';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
@@ -41,7 +46,11 @@ function AppContent() {
 
   // Show dashboard by default
   if (showDashboard) {
-    return <Dashboard />;
+    return (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    );
   }
 
   if (error) {
@@ -88,9 +97,23 @@ function AppContent() {
 
 function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public route for reslink pages */}
+            <Route path="/reslink/:slug" element={<PublicReslinkPage />} />
+            
+            {/* Protected dashboard routes */}
+            <Route path="/*" element={
+              <AppProvider>
+                <AppContent />
+              </AppProvider>
+            } />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

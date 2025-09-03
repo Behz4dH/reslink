@@ -12,6 +12,8 @@ interface Reslink {
   last_viewed?: string;
   unique_id?: string;
   updated_date?: string;
+  avatar_url?: string;
+  linkedin_url?: string;
 }
 
 export type { Reslink };

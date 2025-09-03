@@ -1,1 +1,10 @@
 node_modules
+dist/
+*.env
+.DS_Store
+*.log
+nul
+backend/data/reslinks.db*
+backend/public/avatars/
+backend/public/videos/
+backend/public/resumes/

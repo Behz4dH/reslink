@@ -23,6 +23,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
   const [currentStep, setCurrentStep] = useState(1);
   const [showTeleprompter, setShowTeleprompter] = useState(false);
   const [reslinkTitle, setReslinkTitle] = useState('');
+  const [name, setName] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [script, setScript] = useState('');
 
@@ -57,11 +58,12 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
 
       // Create reslink in database
       console.log('Creating reslink in database...');
+      const titleParts = reslinkTitle.split(' - ');
       const newReslinkData = {
         title: reslinkTitle,
-        name: reslinkTitle.split(' - ')[0] || reslinkTitle,
-        position: reslinkTitle.split(' - ')[1] || 'Position', 
-        company: reslinkTitle.split(' - ')[2] || 'Company',
+        name: name,
+        position: titleParts[0] || 'Position', 
+        company: titleParts[1] || 'Company',
         video_url: uploadedVideoUrl || '',
         resume_url: resumeUrl,
         status: 'draft' as const,
@@ -74,12 +76,13 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
     } catch (error) {
       console.error('Error creating reslink:', error);
       // Still complete the flow even if save fails, but with local data
+      const titleParts = reslinkTitle.split(' - ');
       const fallbackReslink = {
         id: Date.now().toString(),
         title: reslinkTitle,
-        name: reslinkTitle.split(' - ')[0] || reslinkTitle,
-        position: reslinkTitle.split(' - ')[1] || 'Position',
-        company: reslinkTitle.split(' - ')[2] || 'Company',
+        name: name,
+        position: titleParts[0] || 'Position',
+        company: titleParts[1] || 'Company',
         createdDate: new Date().toISOString().split('T')[0],
         videoUrl: uploadedVideoUrl || '/videos/new-recording.mp4',
         resumeUrl: resumeFile ? URL.createObjectURL(resumeFile) : '',
@@ -95,6 +98,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
   const resetFlow = () => {
     setCurrentStep(1);
     setReslinkTitle('');
+    setName('');
     setResumeFile(null);
     setScript('');
     setShowTeleprompter(false);
@@ -128,8 +132,11 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
           
           {currentStep === 1 && (
             <TitleStep 
+              key="titlestep"
               title={reslinkTitle}
+              name={name}
               setTitle={setReslinkTitle}
+              setName={setName}
               onNext={handleNextStep}
             />
           )}

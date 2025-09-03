@@ -1,4 +1,7 @@
+import { useAuth } from "@/contexts/AuthContext";
+
 export const Sidebar = () => {
+  const { logout } = useAuth();
   return (
     <div className="fixed left-0 top-0 w-60 h-screen bg-blue-900 text-white">
       {/* User Profile Section */}
@@ -50,7 +53,13 @@ export const Sidebar = () => {
 
       {/* Logout Button */}
       <div className="absolute bottom-0 left-0 right-0 p-6">
-        <button className="text-white hover:text-gray-300 flex items-center gap-2">
+        <button 
+          onClick={() => {
+            console.log('Logout button clicked in sidebar');
+            logout();
+          }}
+          className="text-white hover:text-gray-300 flex items-center gap-2"
+        >
           <span>↗️</span>
           Log out
         </button>

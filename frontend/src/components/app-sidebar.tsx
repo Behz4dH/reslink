@@ -5,9 +5,17 @@ import {
   MailIcon,
   CopyIcon,
   GiftIcon,
+  MoonIcon,
+  SunIcon,
+  UserIcon,
+  SettingsIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/AuthContext"
+import { useTheme } from "@/contexts/ThemeContext"
+import { UserProfileSheet } from "@/components/UserProfile/UserProfileSheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Sidebar,
   SidebarContent,
@@ -26,21 +34,41 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Sidebar 
       collapsible="offcanvas"
       {...props}
     >
       <SidebarHeader>
-        <div className="flex items-center gap-3 p-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <MailIcon className="h-4 w-4" />
+        <UserProfileSheet>
+          <div className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/50 rounded-lg transition-colors">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.avatar_url} />
+              <AvatarFallback>
+                {user?.username ? getUserInitials(user.username) : <UserIcon className="h-4 w-4" />}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{user?.username || 'User'}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {user?.role === 'superuser' ? 'Admin' : 'Job Seeker'}
+              </span>
+            </div>
+            <SettingsIcon className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{data.user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{data.user.role}</span>
-          </div>
-        </div>
+        </UserProfileSheet>
       </SidebarHeader>
       
       <SidebarContent>
@@ -55,35 +83,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Referral Section */}
-        <div className="mt-6 mx-3 rounded-lg border bg-card p-4 text-card-foreground shadow">
-          <div className="text-center">
-            <GiftIcon className="h-6 w-6 mx-auto mb-2 text-primary" />
-            <div className="font-semibold text-sm mb-2">
-              GET REWARDED FOR REFERRALS
-            </div>
-            <div className="text-muted-foreground text-xs mb-3">
-              Refer friends to Reslink and earn credits when they sign up!
-            </div>
-            <Button variant="link" className="text-muted-foreground text-xs p-0 h-auto">
-              More details
-            </Button>
-          </div>
-        </div>
-
-        {/* Copy Link Button */}
-        <div className="mt-4 mx-3">
-          <Button variant="outline" className="w-full">
-            <span>Copy link</span>
-            <CopyIcon className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
       </SidebarContent>
       
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
+            <SidebarMenuButton onClick={toggleTheme}>
+              {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+              <span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={logout}>
               <LogOutIcon />
               <span>Log out</span>
             </SidebarMenuButton>

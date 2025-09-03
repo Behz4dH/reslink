@@ -1,108 +1,227 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Zap, 
+  Save, 
+  Scissors, 
+  Smile, 
+  Maximize, 
+  Briefcase, 
+  Clock,
+  Type,
+  CheckCircle,
+  Info
+} from 'lucide-react';
 
 interface GeneratedScriptModalProps {
-  script: string;
-  onClose: () => void;
-  onSave: (script: string) => void;
+  script?: string;
+  onClose?: () => void;
+  onSave?: (script: string) => void;
 }
 
-export const GeneratedScriptModal = ({ script, onClose, onSave }: GeneratedScriptModalProps) => {
+export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({ 
+  script = '', 
+  onClose = () => {}, 
+  onSave = () => {} 
+}) => {
   const [currentScript, setCurrentScript] = useState(script);
   const [customEdit, setCustomEdit] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleEditAction = (action: string) => {
+    setIsEditing(true);
     // In a real implementation, these would make API calls to modify the script
     console.log(`Editing script with action: ${action}`);
+    
+    // Simulate processing
+    setTimeout(() => {
+      setIsEditing(false);
+      // Could modify the script based on the action here
+    }, 1500);
   };
 
   const handleSave = () => {
     onSave(currentScript);
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 relative">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">⚡</span>
-            <h2 className="text-xl font-semibold text-gray-900">Reslink PitchAI</h2>
-          </div>
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        </div>
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
 
-        {/* Modal Content */}
-        <div className="p-6 space-y-6">
-          <div>
-            <p className="text-gray-700 mb-4">
-              Here's a tailored 60-90 second video script for your software developer application, 
-              based on your resume and the placeholder job description:
-            </p>
-            
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-800 leading-relaxed">
+  const getEstimatedDuration = (wordCount: number) => {
+    // Average speaking rate is ~150 words per minute
+    const minutes = Math.ceil(wordCount / 150);
+    return `${minutes} min`;
+  };
+
+  const wordCount = getWordCount(currentScript);
+  const estimatedDuration = getEstimatedDuration(wordCount);
+
+  const editOptions = [
+    {
+      id: 'shorten',
+      label: 'Shorten it',
+      icon: Scissors,
+      description: 'Make it more concise'
+    },
+    {
+      id: 'casual',
+      label: 'Make it casual',
+      icon: Smile,
+      description: 'More conversational tone'
+    },
+    {
+      id: 'lengthen',
+      label: 'Lengthen it',
+      icon: Maximize,
+      description: 'Add more details'
+    },
+    {
+      id: 'formal',
+      label: 'Make it formal',
+      icon: Briefcase,
+      description: 'More professional tone'
+    }
+  ];
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" />
+            Your Generated Script
+          </DialogTitle>
+          <DialogDescription>
+            Here's your personalized 60-90 second video script. You can edit it directly or use our AI suggestions.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6 flex-1 overflow-y-auto">
+          {/* Script Stats */}
+          <div className="flex items-center gap-4 text-sm">
+            <Badge variant="secondary" className="gap-1">
+              <Type className="h-3 w-3" />
+              {wordCount} words
+            </Badge>
+            <Badge variant="secondary" className="gap-1">
+              <Clock className="h-3 w-3" />
+              ~{estimatedDuration} read
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <CheckCircle className="h-3 w-3 text-green-600" />
+              Ready to use
+            </Badge>
+          </div>
+
+          {/* Script Editor */}
+          <Card className="p-4">
+            <div className="bg-muted/50 rounded-lg p-4">
               <textarea
                 value={currentScript}
                 onChange={(e) => setCurrentScript(e.target.value)}
-                className="w-full h-64 bg-transparent border-none resize-none focus:outline-none"
+                className="w-full h-64 bg-transparent border-none resize-none focus:outline-none text-sm leading-relaxed"
+                placeholder="Your script will appear here..."
+                disabled={isEditing}
               />
+            </div>
+          </Card>
+
+          {/* AI Edit Options */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-foreground">AI Script Adjustments</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {editOptions.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <Button
+                    key={option.id}
+                    variant="outline"
+                    onClick={() => handleEditAction(option.id)}
+                    disabled={isEditing}
+                    className="flex flex-col h-auto p-4 gap-2"
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs font-medium">{option.label}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Editing Options */}
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={() => handleEditAction('shorten')}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              ✂️ Shorten it
-            </button>
-            <button 
-              onClick={() => handleEditAction('casual')}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              😊 Make it casual
-            </button>
-            <button 
-              onClick={() => handleEditAction('lengthen')}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              📏 Lengthen it
-            </button>
-            <button 
-              onClick={() => handleEditAction('formal')}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              👔 Make it formal
-            </button>
+          <Separator />
+
+          {/* Custom Edit Input */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Type className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-foreground">Custom Instructions</h3>
+            </div>
+            
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                value={customEdit}
+                onChange={(e) => setCustomEdit(e.target.value)}
+                placeholder="Tell us what you want to change in the script..."
+                className="flex-1"
+                disabled={isEditing}
+              />
+              <Button 
+                onClick={() => handleEditAction(customEdit)}
+                disabled={!customEdit.trim() || isEditing}
+                variant="outline"
+              >
+                Apply
+              </Button>
+            </div>
           </div>
 
-          {/* Custom Input */}
-          <div>
-            <input
-              type="text"
-              value={customEdit}
-              onChange={(e) => setCustomEdit(e.target.value)}
-              placeholder="✏️ Tell us what you want to change in the script"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          {/* Pro Tip */}
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Pro tip:</strong> Keep your script between 60-90 seconds (about 150-225 words) for the best impact. 
+              Practice reading it aloud before recording.
+            </AlertDescription>
+          </Alert>
         </div>
 
-        {/* Modal Actions */}
-        <div className="p-6 border-t border-gray-200">
-          <button 
-            onClick={handleSave}
-            className="w-full bg-lime-400 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-lime-500 transition-colors flex items-center justify-center gap-2"
+        <DialogFooter>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            disabled={isEditing}
           >
-            ✓ Save
-          </button>
-        </div>
-      </div>
-    </div>
+            Back
+          </Button>
+          <Button 
+            onClick={handleSave}
+            disabled={isEditing}
+            className="gap-2"
+          >
+            <Save className="h-4 w-4" />
+            Save & Use Script
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
