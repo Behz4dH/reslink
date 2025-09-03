@@ -26,7 +26,7 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
   const fetchReslinkBySlug = async (slug: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/reslinks/public/${slug}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/reslinks/public/${slug}`);
       if (!response.ok) {
         throw new Error('Reslink not found');
       }
