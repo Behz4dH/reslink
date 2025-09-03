@@ -12,6 +12,7 @@ import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
 import SupabaseStorageService from './services/supabaseService';
 import DatabaseService from './services/databaseService';
+import { seedUsers } from './scripts/seedUsers';
 
 dotenv.config();
 console.log("Hello World!");
@@ -91,6 +92,10 @@ app.listen(PORT, async () => {
     if (DatabaseService.isProduction()) {
       console.log('🔧 Initializing production database...');
       await DatabaseService.initializeProduction();
+      
+      // Seed initial users for production
+      console.log('🌱 Seeding initial users...');
+      await seedUsers();
     } else {
       console.log('🔧 Using development SQLite database');
     }
