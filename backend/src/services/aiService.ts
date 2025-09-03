@@ -11,6 +11,53 @@ const openai = new OpenAI({
 });
 
 export class AIService {
+  static async modifyScript(script: string, modification: string): Promise<string> {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    const modificationPrompts = {
+      shorten: 'Make this script shorter and more concise while keeping all key points',
+      casual: 'Rewrite this script in a more casual, conversational tone',
+      lengthen: 'Expand this script with more details and examples while keeping it engaging',
+      formal: 'Make this script more formal and professional'
+    };
+
+    const prompt = modificationPrompts[modification as keyof typeof modificationPrompts] || modification;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a professional script editor. Modify the provided script according to the instructions. Return ONLY the modified script - no explanations or preamble.',
+          },
+          {
+            role: 'user',
+            content: `${prompt}:\n\n${script}`,
+          },
+        ],
+        max_tokens: 400,
+        temperature: 0.7,
+      });
+
+      let modifiedScript = response.choices[0]?.message?.content?.trim() || '';
+      
+      // Clean up any potential formatting artifacts
+      modifiedScript = modifiedScript.replace(/^["']|["']$/g, '').trim();
+      
+      if (!modifiedScript || modifiedScript.length < 20) {
+        throw new Error('Failed to generate proper modified script');
+      }
+
+      return modifiedScript;
+    } catch (error) {
+      console.error('OpenAI API error:', error);
+      throw new Error('Failed to modify script');
+    }
+  }
+
   static async generatePitch(input: PitchInput): Promise<GeneratedPitch> {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error('OpenAI API key not configured');
@@ -76,7 +123,7 @@ ${resume}
 
 ` : '';
 
-    return `Write a ${length}-second video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their requirements.
+    return `Write a ${length}-second professional video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their specific requirements.
 
 JOB POSTING:
 ${description}${resumeSection}
@@ -86,13 +133,14 @@ REQUIREMENTS:
 - Use the EXACT job title and company name from the job posting
 - Reference specific technologies/skills from BOTH the job posting AND my resume
 - ${Math.round(length * 2.5)} words total (~${length} seconds)
-- Professional tone, first person
+- Professional, confident tone, first person
 
 STRUCTURE:
-Opening: "Hi, I'm [my name], excited about the [exact job title] role at [exact company name]..."
-Experience: Mention 2-3 specific matches between job requirements and my background
-Value: Why my experience makes me perfect for this specific role  
-Close: Strong, enthusiastic finish
+Opening: "Hi, my name is [name]. I came across your opening for the [exact job title] role at [exact company name], and I knew immediately I had to reach out."
+Experience: Lead with years of experience and specific technical skills that match their requirements. Use phrases like "I specialize in..." and mention exact technologies from both job posting and resume.
+Value Proposition: "What sets me apart is..." - explain unique combination of skills and real-world impact. Reference specific projects or achievements that demonstrate relevant expertise.
+Mission Connection: Show genuine interest in the company's mission/work with "I'm truly excited about [company]'s [specific mission/focus area from job posting]..."
+Close: Professional closing asking for opportunity to discuss further.
 
 Write ONLY the script to be spoken:`;
   }

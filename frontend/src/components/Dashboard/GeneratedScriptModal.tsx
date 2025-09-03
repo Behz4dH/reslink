@@ -41,16 +41,40 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
   const [customEdit, setCustomEdit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleEditAction = (action: string) => {
-    setIsEditing(true);
-    // In a real implementation, these would make API calls to modify the script
-    console.log(`Editing script with action: ${action}`);
+  const handleEditAction = async (action: string) => {
+    if (!action.trim()) return;
     
-    // Simulate processing
-    setTimeout(() => {
+    setIsEditing(true);
+    
+    try {
+      const response = await fetch('/api/pitch/modify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          script: currentScript,
+          modification: action,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.data?.script) {
+        setCurrentScript(data.data.script);
+        if (action === customEdit) {
+          setCustomEdit(''); // Clear custom input after successful apply
+        }
+      } else {
+        console.error('Failed to modify script:', data.error);
+        // Could show an error toast here
+      }
+    } catch (error) {
+      console.error('Error modifying script:', error);
+      // Could show an error toast here
+    } finally {
       setIsEditing(false);
-      // Could modify the script based on the action here
-    }, 1500);
+    }
   };
 
   const handleSave = () => {
@@ -158,7 +182,7 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
                     disabled={isEditing}
                     className="flex flex-col h-auto p-4 gap-2"
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className={`h-5 w-5 ${isEditing ? 'animate-spin' : ''}`} />
                     <span className="text-xs font-medium">{option.label}</span>
                   </Button>
                 );
@@ -188,8 +212,13 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
                 onClick={() => handleEditAction(customEdit)}
                 disabled={!customEdit.trim() || isEditing}
                 variant="outline"
+                className="min-w-[70px]"
               >
-                Apply
+                {isEditing ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  'Apply'
+                )}
               </Button>
             </div>
           </div>

@@ -29,4 +29,36 @@ router.post('/generate', validatePitchInput, async (req: Request, res: Response)
   }
 });
 
+router.post('/modify', async (req: Request, res: Response) => {
+  try {
+    const { script, modification } = req.body;
+    
+    if (!script || !modification) {
+      const response: ApiResponse<never> = {
+        success: false,
+        error: 'Script and modification parameters are required',
+      };
+      return res.status(400).json(response);
+    }
+    
+    const modifiedScript = await AIService.modifyScript(script, modification);
+    
+    const response: ApiResponse<{ script: string }> = {
+      success: true,
+      data: { script: modifiedScript },
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Script modification error:', error);
+    
+    const response: ApiResponse<never> = {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to modify script',
+    };
+    
+    res.status(500).json(response);
+  }
+});
+
 export { router as pitchRouter };
