@@ -4,11 +4,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-console.log("Together API Key:", process.env.OPENAI_API_KEY);
-console.log("Together API Key loaded:", process.env.OPENAI_API_KEY ? "Yes" : "No");
+console.log("OpenAI API Key:", process.env.OPENAI_API_KEY?.slice(0,10) + "...");
+console.log("OpenAI API Key loaded:", process.env.OPENAI_API_KEY ? "Yes" : "No");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://api.together.xyz/v1", // 👈 important
 });
 
 export class AIService {
@@ -23,7 +22,7 @@ export class AIService {
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
