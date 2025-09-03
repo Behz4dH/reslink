@@ -107,12 +107,19 @@ class ProductionDatabaseService {
     }
   }
 
+  // Convert SQLite-style ? placeholders to PostgreSQL $1, $2, $3
+  private convertQuery(query: string): string {
+    let index = 1;
+    return query.replace(/\?/g, () => `$${index++}`);
+  }
+
   async executeQuery<T = any>(query: string, params: any[] = []): Promise<T[]> {
     if (!this.pool) throw new Error('Database pool not initialized');
     
     const client = await this.pool.connect();
     try {
-      const result = await client.query(query, params);
+      const pgQuery = this.convertQuery(query);
+      const result = await client.query(pgQuery, params);
       return result.rows;
     } finally {
       client.release();
@@ -129,7 +136,8 @@ class ProductionDatabaseService {
     
     const client = await this.pool.connect();
     try {
-      await client.query(query, params);
+      const pgQuery = this.convertQuery(query);
+      await client.query(pgQuery, params);
     } finally {
       client.release();
     }
