@@ -66,18 +66,33 @@ export class AIService {
       enthusiastic: 'energetic, passionate, and engaging',
     };
 
-    return `Create a ${length}-second pitch script based on the following description. The tone should be ${toneInstructions[tone as keyof typeof toneInstructions]}.
+    return `You are an expert career coach and script writer. Create a highly personalized ${length}-second video pitch script that will help the candidate stand out for this specific job opportunity.
 
-Description: ${description}
+${description}
 
-Requirements:
-- Write in first person
-- Keep it conversational and natural for video delivery
-- Target approximately ${Math.round(length * 2.5)} words (${length} seconds at ~150 words/minute)
-- Include: personal introduction, key experience/skills, value proposition
-- Make it sound authentic, not rehearsed
-- End with a strong, memorable statement
+ANALYSIS REQUIREMENTS:
+1. Extract the key requirements, skills, and company values from the job description
+2. Identify what makes this role/company unique
+3. Understand the ideal candidate profile they're seeking
 
-Script:`;
+SCRIPT REQUIREMENTS:
+- Tone: ${toneInstructions[tone as keyof typeof toneInstructions]}
+- Length: Approximately ${Math.round(length * 2.5)} words (${length} seconds at ~150 words/minute)
+- First person perspective, conversational for video delivery
+- Authentic and natural, not rehearsed or generic
+
+SCRIPT STRUCTURE:
+1. **Hook Opening** (5-10 seconds): Grab attention with specific reference to the role/company
+2. **Relevant Experience** (20-30 seconds): Highlight 2-3 most relevant skills/experiences that directly match their needs
+3. **Unique Value** (15-20 seconds): What differentiates you from other candidates for THIS specific role
+4. **Strong Close** (5-10 seconds): Memorable statement that reinforces your fit and enthusiasm
+
+PERSONALIZATION REQUIREMENTS:
+- Reference specific technologies, methodologies, or values mentioned in the job description
+- Connect your background directly to their stated needs
+- Show you understand their business/industry challenges
+- Avoid generic phrases like "I'm passionate" or "team player"
+
+Write ONLY the script, no additional commentary:`;
   }
 }

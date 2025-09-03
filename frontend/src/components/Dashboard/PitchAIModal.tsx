@@ -61,18 +61,30 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
     setError('');
     
     try {
-      // Simulate API call - replace with actual API integration
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the actual API
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/pitch/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          description: `Job Title: ${jobTitle}\n\nJob Description: ${jobDescription}`,
+          length: 60,
+          tone: 'professional'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate script');
+      }
+
+      const result = await response.json();
       
-      const mockScript = `Hi [Recruiter's Name], my name is [Your Name]. I saw that you're hiring for a ${jobTitle} role and wanted to reach out personally to express my interest.
-
-With a background in Applied Artificial Intelligence from the University of Huddersfield, and hands-on experience in high-pressure, collaborative environments, I bring a unique balance of technical understanding and real-world problem-solving. Whether I was managing a team in a busy restaurant or handling logistics with precision, I've consistently demonstrated strong attention to detail, time management, and communication—traits that directly translate to success in software development.
-
-What sets me apart is my adaptability and ability to learn fast. In my previous roles, I quickly picked up safety protocols, managed new team members, and implemented feedback systems—all of which required structured thinking and process improvement, key to great software development. I'm passionate about logic, systems, and user experience, and I'm now excited to channel that energy into designing code that delivers real impact.
-
-Thank you for considering my application. I'd love to discuss how my unique background and passion can contribute to your team.`;
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to generate script');
+      }
       
-      setGeneratedScript(mockScript);
+      setGeneratedScript(result.data.script);
       setShowGeneratedScript(true);
       setIsGenerating(false);
     } catch (error) {
