@@ -61,6 +61,41 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
     setError('');
     
     try {
+      // Extract resume text if file is provided
+      let resumeText = '';
+      if (resumeFile) {
+        try {
+          let fullText = '';
+          
+          if (resumeFile.type === 'application/pdf') {
+            // Handle PDF files by sending to backend for parsing
+            const formData = new FormData();
+            formData.append('file', resumeFile);
+            
+            const parseResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/parse-pdf`, {
+              method: 'POST',
+              body: formData,
+            });
+            
+            if (parseResponse.ok) {
+              const result = await parseResponse.json();
+              fullText = result.text || '';
+            } else {
+              throw new Error('Failed to parse PDF');
+            }
+          } else {
+            // Handle text files directly
+            fullText = await resumeFile.text();
+          }
+          
+          // Truncate resume to ~3000 characters to fit within token limits
+          resumeText = fullText.length > 3000 ? fullText.substring(0, 3000) + '...' : fullText;
+        } catch (err) {
+          console.warn('Could not read resume file:', err);
+          setError('Could not read resume file. Please try a different format.');
+        }
+      }
+
       // Call the actual API
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/pitch/generate`, {
         method: 'POST',
@@ -69,6 +104,7 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
         },
         body: JSON.stringify({
           description: `Job Title: ${jobTitle}\n\nJob Description: ${jobDescription}`,
+          resume: resumeText || undefined,
           length: 60,
           tone: 'professional'
         }),

@@ -1,5 +1,6 @@
 export interface PitchInput {
   description: string;
+  resume?: string;
   length?: 30 | 60 | 90; // seconds
   tone?: 'professional' | 'casual' | 'enthusiastic';
 }

@@ -10,6 +10,7 @@ import reslinkRouter from './controllers/reslinkController';
 import uploadRouter from './controllers/uploadController';
 import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
+import { pdfParserRouter } from './routes/pdfParser';
 import SupabaseStorageService from './services/supabaseService';
 import DatabaseService from './services/databaseService';
 import { seedUsers } from './scripts/seedUsers';
@@ -60,6 +61,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/pitch', pitchRouter);
 app.use('/api/reslinks', reslinkRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api', pdfParserRouter);
 
 // Health check
 app.get('/health', (req, res) => {

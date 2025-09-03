@@ -17,17 +17,17 @@ export class AIService {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { description, length = 60, tone = 'professional' } = input;
+    const { description, resume, length = 60, tone = 'professional' } = input;
 
-    const prompt = this.buildPrompt(description, length, tone);
+    const prompt = this.buildPrompt(description, resume, length, tone);
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',
+        model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
         messages: [
           {
             role: 'system',
-            content: 'You are a professional pitch writer who creates compelling, natural-sounding introductions for video presentations.',
+            content: 'You are a professional pitch writer. Write ONLY the video pitch script - no explanations, no preamble, no "Here\'s a script" - just the actual words to be spoken in the video.',
           },
           {
             role: 'user',
@@ -38,10 +38,14 @@ export class AIService {
         temperature: 0.7,
       });
 
-      const script = response.choices[0]?.message?.content?.trim() || '';
+      let script = response.choices[0]?.message?.content?.trim() || '';
       
-      if (!script) {
-        throw new Error('Failed to generate pitch script');
+      // Clean up any potential formatting artifacts
+      script = script.replace(/^["']|["']$/g, '').trim();
+      
+      // If still empty or too short, use a fallback
+      if (!script || script.length < 50) {
+        throw new Error('Failed to generate proper pitch script');
       }
 
       const wordCount = script.split(/\s+/).length;
@@ -59,40 +63,38 @@ export class AIService {
     }
   }
 
-  private static buildPrompt(description: string, length: number, tone: string): string {
+  private static buildPrompt(description: string, resume: string | undefined, length: number, tone: string): string {
     const toneInstructions = {
       professional: 'formal, confident, and business-appropriate',
       casual: 'friendly, approachable, and conversational',
       enthusiastic: 'energetic, passionate, and engaging',
     };
 
-    return `You are an expert career coach and script writer. Create a highly personalized ${length}-second video pitch script that will help the candidate stand out for this specific job opportunity.
+    const resumeSection = resume ? `
 
-${description}
+MY RESUME/BACKGROUND:
+${resume}
 
-ANALYSIS REQUIREMENTS:
-1. Extract the key requirements, skills, and company values from the job description
-2. Identify what makes this role/company unique
-3. Understand the ideal candidate profile they're seeking
+` : '';
 
-SCRIPT REQUIREMENTS:
-- Tone: ${toneInstructions[tone as keyof typeof toneInstructions]}
-- Length: Approximately ${Math.round(length * 2.5)} words (${length} seconds at ~150 words/minute)
-- First person perspective, conversational for video delivery
-- Authentic and natural, not rehearsed or generic
+    return `Write a ${length}-second video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their requirements.
 
-SCRIPT STRUCTURE:
-1. **Hook Opening** (5-10 seconds): Grab attention with specific reference to the role/company
-2. **Relevant Experience** (20-30 seconds): Highlight 2-3 most relevant skills/experiences that directly match their needs
-3. **Unique Value** (15-20 seconds): What differentiates you from other candidates for THIS specific role
-4. **Strong Close** (5-10 seconds): Memorable statement that reinforces your fit and enthusiasm
+JOB POSTING:
+${description}${resumeSection}
 
-PERSONALIZATION REQUIREMENTS:
-- Reference specific technologies, methodologies, or values mentioned in the job description
-- Connect your background directly to their stated needs
-- Show you understand their business/industry challenges
-- Avoid generic phrases like "I'm passionate" or "team player"
+REQUIREMENTS:
+- Start directly with the pitch (no "Here's a script" preamble)
+- Use the EXACT job title and company name from the job posting
+- Reference specific technologies/skills from BOTH the job posting AND my resume
+- ${Math.round(length * 2.5)} words total (~${length} seconds)
+- Professional tone, first person
 
-Write ONLY the script, no additional commentary:`;
+STRUCTURE:
+Opening: "Hi, I'm [my name], excited about the [exact job title] role at [exact company name]..."
+Experience: Mention 2-3 specific matches between job requirements and my background
+Value: Why my experience makes me perfect for this specific role  
+Close: Strong, enthusiastic finish
+
+Write ONLY the script to be spoken:`;
   }
 }
