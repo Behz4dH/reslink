@@ -3,6 +3,7 @@ services:
   - type: web
     name: reslink-backend
     runtime: node
+    plan: free
     buildCommand: cd backend && npm install && npm run build
     startCommand: cd backend && npm start
     healthCheckPath: /api/health
@@ -23,9 +24,9 @@ services:
         sync: false
     
   # Frontend Static Site  
-  - type: web
+  - type: static
     name: reslink-frontend
-    runtime: static
+    plan: free
     buildCommand: cd frontend && npm install && npx vite build --mode production
     staticPublishPath: frontend/dist
     routes:
@@ -40,3 +41,4 @@ databases:
   - name: reslink-db
     databaseName: reslink
     user: reslink_user
+    plan: free
