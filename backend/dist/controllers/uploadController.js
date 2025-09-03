@@ -3,18 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadRouter = void 0;
 const express_1 = require("express");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const supabaseService_1 = __importDefault(require("../services/supabaseService"));
 const supabaseService = new supabaseService_1.default();
-exports.uploadRouter = (0, express_1.Router)();
-// Test route for debugging
-exports.uploadRouter.get('/test', (req, res) => {
-    res.json({ message: 'Upload router is working!' });
-});
+const router = (0, express_1.Router)();
 // Configure multer for temporary file storage
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -50,7 +45,7 @@ const upload = (0, multer_1.default)({
     }
 });
 // POST /api/upload/video - Upload video file
-exports.uploadRouter.post('/video', upload.single('video'), async (req, res) => {
+router.post('/video', upload.single('video'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -92,7 +87,7 @@ exports.uploadRouter.post('/video', upload.single('video'), async (req, res) => 
     }
 });
 // POST /api/upload/resume - Upload resume file
-exports.uploadRouter.post('/resume', upload.single('resume'), async (req, res) => {
+router.post('/resume', upload.single('resume'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -134,7 +129,7 @@ exports.uploadRouter.post('/resume', upload.single('resume'), async (req, res) =
     }
 });
 // DELETE /api/upload/:type/:path - Delete uploaded file
-exports.uploadRouter.delete('/:type/:path', async (req, res) => {
+router.delete('/:type/:path', async (req, res) => {
     try {
         const { type, path: filePath } = req.params;
         if (!['video', 'resume'].includes(type)) {
@@ -158,5 +153,5 @@ exports.uploadRouter.delete('/:type/:path', async (req, res) => {
         });
     }
 });
-exports.default = exports.uploadRouter;
+exports.default = router;
 //# sourceMappingURL=uploadController.js.map
