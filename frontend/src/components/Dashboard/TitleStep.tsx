@@ -66,37 +66,37 @@ export const TitleStep: React.FC<TitleStepProps> = ({
   const isFormValid = (title?.trim()?.length ?? 0) >= 5 && (name?.trim()?.length ?? 0) >= 2;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-lg mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-foreground mb-1">
           Create Your Reslink
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Start by telling us about yourself and the role you're applying for.
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Tell us about yourself and the role you're applying for.
         </p>
       </div>
 
       {/* Main Form Card */}
-      <Card className="p-8">
-        <div className="space-y-6">
+      <Card className="p-3">
+        <div className="space-y-2.5">
           {/* Title Input */}
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-base font-semibold">
+          <div className="space-y-1">
+            <Label htmlFor="title" className="text-sm font-medium">
               Reslink Title
             </Label>
-            <p className="text-sm text-muted-foreground mb-3">
-              Use format: "Position - Company" (e.g., "Product Manager - Meta")
-            </p>
             <Input
               id="title"
               type="text"
               value={title}
               onChange={handleTitleChange}
               placeholder="Product Manager - Meta"
-              className={`h-12 text-base ${errors.title ? 'border-destructive' : ''}`}
+              className={`h-8 text-sm ${errors.title ? 'border-destructive' : ''}`}
               aria-describedby={errors.title ? "title-error" : undefined}
             />
+            <p className="text-xs text-muted-foreground">
+              Format: "Position - Company"
+            </p>
             {errors.title && (
               <p id="title-error" className="text-sm text-destructive" role="alert">
                 {errors.title}
@@ -105,22 +105,22 @@ export const TitleStep: React.FC<TitleStepProps> = ({
           </div>
 
           {/* Name Input */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-base font-semibold">
+          <div className="space-y-1">
+            <Label htmlFor="name" className="text-sm font-medium">
               Your Full Name
             </Label>
-            <p className="text-sm text-muted-foreground mb-3">
-              This will appear on your public Reslink profile
-            </p>
             <Input
               id="name"
               type="text"
               value={name}
               onChange={handleNameChange}
               placeholder="John Doe"
-              className={`h-12 text-base ${errors.name ? 'border-destructive' : ''}`}
+              className={`h-8 text-sm ${errors.name ? 'border-destructive' : ''}`}
               aria-describedby={errors.name ? "name-error" : undefined}
             />
+            <p className="text-xs text-muted-foreground">
+              Appears on your public profile
+            </p>
             {errors.name && (
               <p id="name-error" className="text-sm text-destructive" role="alert">
                 {errors.name}
@@ -129,15 +129,15 @@ export const TitleStep: React.FC<TitleStepProps> = ({
           </div>
 
           {/* Pro Tips Section */}
-          <div className="bg-muted/50 rounded-lg p-4 border border-muted">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <div className="bg-muted/30 rounded p-2 border border-muted/50">
+            <div className="flex items-start gap-1.5">
+              <Info className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-foreground mb-2">Pro Tips</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Make your title specific and include the company name</li>
-                  <li>• Use your professional name as it appears on your resume</li>
-                  <li>• Keep it concise but descriptive for better searchability</li>
+                <h3 className="text-xs font-medium text-foreground mb-0.5">Pro Tips</h3>
+                <ul className="text-xs text-muted-foreground leading-tight">
+                  <li>• Include company name in title</li>
+                  <li>• Use your professional name</li>
+                  <li>• Keep it concise and descriptive</li>
                 </ul>
               </div>
             </div>
@@ -146,19 +146,19 @@ export const TitleStep: React.FC<TitleStepProps> = ({
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center mt-8">
-        <div className="text-sm text-muted-foreground">
-          Step 1 of 3
+      <div className="flex justify-between items-center mt-4">
+        <div className="text-xs text-muted-foreground">
+          Step 1 of 4
         </div>
         
         <Button
           onClick={handleNext}
           disabled={!isFormValid}
-          size="lg"
-          className="gap-2"
+          size="sm"
+          className="gap-1.5"
         >
-          Next Step
-          <ArrowRight className="h-4 w-4" />
+          Next
+          <ArrowRight className="h-3 w-3" />
         </Button>
       </div>
     </div>

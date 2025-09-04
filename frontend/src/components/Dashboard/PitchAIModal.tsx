@@ -147,7 +147,7 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
@@ -158,7 +158,7 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Info Alert */}
           <Alert>
             <Info className="h-4 w-4" />
@@ -169,7 +169,7 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
 
           {/* Job Title Input */}
           <div className="space-y-2">
-            <Label htmlFor="jobTitle" className="text-base font-semibold">
+            <Label htmlFor="jobTitle" className="text-sm font-medium">
               Job Title
             </Label>
             <Input
@@ -178,23 +178,23 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
               placeholder="e.g., UX/UI Designer, Software Engineer, Product Manager"
-              className="h-12"
+              className="h-9"
               disabled={isGenerating}
             />
           </div>
 
           {/* Job Description Input */}
           <div className="space-y-2">
-            <Label htmlFor="jobDescription" className="text-base font-semibold">
+            <Label htmlFor="jobDescription" className="text-sm font-medium">
               Job Description
             </Label>
-            <div className="bg-muted/50 rounded-lg p-4">
+            <div className="bg-muted/50 rounded-lg p-3">
               <textarea
                 id="jobDescription"
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 placeholder="Paste the complete job description here. Include requirements, responsibilities, and company information for the best results..."
-                rows={6}
+                rows={4}
                 disabled={isGenerating}
                 className="w-full bg-transparent border-none resize-none focus:outline-none text-sm leading-relaxed placeholder:text-muted-foreground"
               />

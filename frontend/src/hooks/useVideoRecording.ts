@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import type { VideoRecordingState, MediaConstraints } from '../types';
 import { apiService } from '../services/api';
 
@@ -35,7 +35,8 @@ export const useVideoRecording = () => {
   const startTimeRef = useRef<number>(0);
   const durationIntervalRef = useRef<number | null>(null);
 
-  const startRecording = useCallback(async () => {
+  // Initialize camera without starting recording
+  const initializeCamera = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, error: null }));
 
@@ -48,8 +49,33 @@ export const useVideoRecording = () => {
         videoRef.current.srcObject = stream;
       }
 
+      console.log('Camera initialized successfully');
+    } catch (error) {
+      console.error('Error initializing camera:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to initialize camera',
+      }));
+    }
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, error: null }));
+
+      // If camera isn't already initialized, initialize it first
+      if (!streamRef.current) {
+        const stream = await navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINTS);
+        streamRef.current = stream;
+
+        // Set up video preview
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }
+
       // Set up MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
+      const mediaRecorder = new MediaRecorder(streamRef.current, {
         mimeType: 'video/webm;codecs=vp9,opus',
       });
 
@@ -205,14 +231,76 @@ export const useVideoRecording = () => {
     setState(prev => ({ ...prev, recordedBlob: null, error: null }));
   }, [recordedVideoUrl]);
 
+  // Cleanup function to stop camera and microphone
+  const cleanup = useCallback(() => {
+    // Stop recording if active
+    if (mediaRecorderRef.current && state.isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+
+    // Clear duration interval
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+
+    // Stop all media tracks
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Stopped ${track.kind} track`);
+      });
+      streamRef.current = null;
+    }
+
+    // Clean up video element
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    // Clean up recorded video URL
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl);
+    }
+
+    console.log('Camera and microphone cleanup completed');
+  }, [state.isRecording, recordedVideoUrl]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Stop recording if active
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+
+      // Clear duration interval
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+
+      // Stop all media tracks
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+          console.log(`Hook cleanup: Stopped ${track.kind} track`);
+        });
+      }
+
+      console.log('useVideoRecording hook cleanup completed');
+    };
+  }, []); // Empty dependency array to only run on mount/unmount
+
   return {
     ...state,
+    initializeCamera,
     startRecording,
     stopRecording,
     pauseRecording,
     resumeRecording,
     uploadRecordedVideo,
     discardRecording,
+    cleanup,
     videoRef,
     uploadedVideoUrl,
     isUploading,

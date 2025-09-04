@@ -90,27 +90,27 @@ export const ResumeUploadStep: React.FC<ResumeUploadStepProps> = ({
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+      <div className="mb-4">
+        <h1 className="text-lg font-semibold text-foreground mb-1">
           Upload Your Resume
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm">
           Upload your PDF resume to include with your Reslink application.
         </p>
       </div>
 
       {/* Upload Section */}
-      <Card className="p-8 mb-6">
-        <div className="space-y-6">
+      <Card className="p-4 mb-4">
+        <div className="space-y-4">
           {/* Upload Area */}
           <div 
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             className={`
-              border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer
+              border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
               ${dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
               ${resumeFile ? 'border-green-500 bg-green-50/50' : ''}
               hover:border-primary hover:bg-muted/50
@@ -120,16 +120,16 @@ export const ResumeUploadStep: React.FC<ResumeUploadStepProps> = ({
             <div className="flex flex-col items-center">
               {resumeFile ? (
                 <>
-                  <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Resume Uploaded Successfully!</h3>
-                  <p className="text-muted-foreground mb-4">Click to upload a different file</p>
+                  <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
+                  <h3 className="text-base font-semibold text-foreground mb-2">Resume Uploaded Successfully!</h3>
+                  <p className="text-muted-foreground text-sm mb-3">Click to upload a different file</p>
                 </>
               ) : (
                 <>
-                  <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Drop your resume here</h3>
-                  <p className="text-muted-foreground mb-4">or click to browse your files</p>
-                  <Badge variant="secondary" className="mb-4">PDF files only • Max 10MB</Badge>
+                  <Upload className="h-8 w-8 text-muted-foreground mb-3" />
+                  <h3 className="text-base font-semibold text-foreground mb-2">Drop your resume here</h3>
+                  <p className="text-muted-foreground text-sm mb-3">or click to browse your files</p>
+                  <Badge variant="secondary" className="mb-3 text-xs">PDF files only • Max 10MB</Badge>
                 </>
               )}
               
@@ -185,7 +185,7 @@ export const ResumeUploadStep: React.FC<ResumeUploadStepProps> = ({
       </Card>
 
       {/* Reslink Badge Info */}
-      <Card className="p-6 mb-8">
+      <Card className="p-4 mb-4">
         <div className="flex items-start gap-4">
           <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
           <div className="flex-1">
@@ -196,7 +196,7 @@ export const ResumeUploadStep: React.FC<ResumeUploadStepProps> = ({
                 Enabled
               </Badge>
             </div>
-            <p className="text-muted-foreground mb-3">
+            <p className="text-muted-foreground text-sm mb-3">
               A clickable button will be automatically added to your resume that links directly to your Reslink, 
               making it easy for recruiters to view your video pitch.
             </p>
@@ -225,7 +225,6 @@ export const ResumeUploadStep: React.FC<ResumeUploadStepProps> = ({
         <Button 
           onClick={onNext}
           disabled={!resumeFile}
-          size="lg"
           className="gap-2"
         >
           Next Step

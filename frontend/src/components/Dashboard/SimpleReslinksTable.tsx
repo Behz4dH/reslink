@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlayIcon, DownloadIcon, LoaderIcon, EyeIcon, BadgeIcon, ExternalLinkIcon } from 'lucide-react';
+import { PlayIcon, DownloadIcon, LoaderIcon, EyeIcon, BadgeIcon, ExternalLinkIcon, Trash2Icon } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 import type { Reslink } from '../../types/reslink';
 
@@ -29,15 +37,19 @@ interface SimpleReslinksTableProps {
   data: Reslink[];
   loading?: boolean;
   error?: string | null;
+  onDelete?: (id: number) => void;
 }
 
-export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTableProps) {
+export function SimpleReslinksTable({ data, loading, error, onDelete }: SimpleReslinksTableProps) {
   console.log('🎯 SimpleReslinksTable received:', { data, loading, error, dataLength: data?.length });
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [badgeLoading, setBadgeLoading] = useState<number | null>(null);
   const [selectedReslink, setSelectedReslink] = useState<Reslink | null>(null);
   const [showStatsDialog, setShowStatsDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reslinkToDelete, setReslinkToDelete] = useState<Reslink | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const filteredData = data?.filter(reslink => {
     const matchesSearch = reslink.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -128,6 +140,33 @@ export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTabl
     setShowStatsDialog(true);
   };
 
+  const handleDeleteClick = (reslink: Reslink) => {
+    setReslinkToDelete(reslink);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!reslinkToDelete) return;
+    
+    try {
+      setDeleteLoading(true);
+      await apiService.deleteReslink(reslinkToDelete.id);
+      onDelete?.(reslinkToDelete.id);
+      setDeleteDialogOpen(false);
+      setReslinkToDelete(null);
+    } catch (error) {
+      console.error('Error deleting reslink:', error);
+      alert('Failed to delete reslink. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setReslinkToDelete(null);
+  };
+
   const getStatusBadge = (status: string, reslink: Reslink) => {
     const variants = {
       draft: 'secondary' as const,
@@ -195,18 +234,19 @@ export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTabl
               <TableHead className="font-medium">Resume</TableHead>
               <TableHead className="font-medium">Add Badge</TableHead>
               <TableHead className="font-medium">View Reslink</TableHead>
+              <TableHead className="font-medium">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {error ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <div className="text-destructive">{error}</div>
                 </TableCell>
               </TableRow>
             ) : filteredData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <div className="text-muted-foreground">No reslinks found</div>
                 </TableCell>
               </TableRow>
@@ -284,6 +324,17 @@ export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTabl
                       View Reslink
                     </Button>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => handleDeleteClick(reslink)}
+                      variant="destructive"
+                      size="sm"
+                      className="h-8"
+                    >
+                      <Trash2Icon className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -309,6 +360,33 @@ export function SimpleReslinksTable({ data, loading, error }: SimpleReslinksTabl
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Reslink</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{reslinkToDelete?.name}" reslink? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDeleteCancel} disabled={deleteLoading}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteLoading}>
+              {deleteLoading ? (
+                <>
+                  <LoaderIcon className="h-3 w-3 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

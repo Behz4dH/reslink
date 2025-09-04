@@ -1,25 +1,18 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TitleStep } from './TitleStep';
 import { ResumeUploadStep } from './ResumeUploadStep';
 import { PitchCreationSection } from './PitchCreationSection';
 import { ProgressSteps } from './ProgressSteps';
-import { Teleprompter } from '../Teleprompter/Teleprompter';
+import { RecordVideoStep } from './RecordVideoStep';
 import { Button } from '../ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
+import { AppLayout } from '../Layout/AppLayout';
 import { apiService } from '../../services/api';
 
-interface CreateReslinkFlowProps {
-  open: boolean;
-  onClose: () => void;
-  onComplete: (reslink: any) => void;
-}
+interface CreateReslinkFlowProps {}
 
-export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFlowProps) => {
+export const CreateReslinkFlow = ({}: CreateReslinkFlowProps) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [showTeleprompter, setShowTeleprompter] = useState(false);
   const [reslinkTitle, setReslinkTitle] = useState('');
@@ -28,7 +21,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
   const [script, setScript] = useState('');
 
   const handleNextStep = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -40,28 +33,19 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
   };
 
   const handleStartRecording = () => {
-    setShowTeleprompter(true);
+    setCurrentStep(4);
   };
 
   const handleBackToPitchCreation = () => {
-    setShowTeleprompter(false);
     setCurrentStep(3); // Go back to pitch creation step
   };
 
   const handleExitTeleprompter = async (uploadedVideoUrl?: string) => {
-    setShowTeleprompter(false);
     
     try {
       let resumeUrl = '';
       
-      // Upload resume file if provided
-      if (resumeFile) {
-        console.log('Uploading resume file...');
-        const resumeUploadResult = await apiService.uploadResume(resumeFile);
-        resumeUrl = resumeUploadResult.url;
-      }
-
-      // Create reslink in database
+      // Create reslink in database first to get ID for badge generation
       console.log('Creating reslink in database...');
       const titleParts = reslinkTitle.split(' - ');
       const newReslinkData = {
@@ -70,32 +54,46 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
         position: titleParts[0] || 'Position', 
         company: titleParts[1] || 'Company',
         video_url: uploadedVideoUrl || '',
-        resume_url: resumeUrl,
+        resume_url: '', // Will be set after processing resume
         status: 'draft' as const,
       };
       
       const savedReslink = await apiService.createReslink(newReslinkData);
       console.log('Reslink created successfully:', savedReslink);
+
+      // Process and upload resume with badge if both video and resume exist
+      if (resumeFile && uploadedVideoUrl && savedReslink.id) {
+        try {
+          console.log('Applying badge to resume and uploading...');
+          // Add badge to PDF
+          const badgedPdfBlob = await apiService.addBadgeToPDF(savedReslink.id, resumeFile);
+          
+          // Upload badged resume
+          const badgedFile = new File([badgedPdfBlob], `${name}-resume-badged.pdf`, { type: 'application/pdf' });
+          const resumeUploadResult = await apiService.uploadResume(badgedFile);
+          resumeUrl = resumeUploadResult.url;
+          
+          // Update reslink with badged resume URL
+          await apiService.updateReslink(savedReslink.id, { resume_url: resumeUrl });
+          
+        } catch (badgeError) {
+          console.warn('Badge failed, uploading original resume:', badgeError);
+          // Fallback to original resume
+          const resumeUploadResult = await apiService.uploadResume(resumeFile);
+          resumeUrl = resumeUploadResult.url;
+          await apiService.updateReslink(savedReslink.id, { resume_url: resumeUrl });
+        }
+      } else if (resumeFile) {
+        console.log('Uploading original resume...');
+        const resumeUploadResult = await apiService.uploadResume(resumeFile);
+        resumeUrl = resumeUploadResult.url;
+        await apiService.updateReslink(savedReslink.id, { resume_url: resumeUrl });
+      }
       
-      onComplete(savedReslink);
     } catch (error) {
       console.error('Error creating reslink:', error);
-      // Still complete the flow even if save fails, but with local data
-      const titleParts = reslinkTitle.split(' - ');
-      const fallbackReslink = {
-        id: Date.now().toString(),
-        title: reslinkTitle,
-        name: name,
-        position: titleParts[0] || 'Position',
-        company: titleParts[1] || 'Company',
-        createdDate: new Date().toISOString().split('T')[0],
-        videoUrl: uploadedVideoUrl || '/videos/new-recording.mp4',
-        resumeUrl: resumeFile ? URL.createObjectURL(resumeFile) : '',
-        status: 'draft' as const,
-      };
-      onComplete(fallbackReslink);
     } finally {
-      onClose();
+      navigate('/dashboard');
       resetFlow();
     }
   };
@@ -106,73 +104,71 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
     setName('');
     setResumeFile(null);
     setScript('');
-    setShowTeleprompter(false);
   };
 
   const handleClose = () => {
-    onClose();
+    navigate('/dashboard');
     resetFlow();
   };
 
-  if (showTeleprompter) {
-    return (
-      <Teleprompter 
-        script={script}
-        onExit={handleExitTeleprompter}
-        onBackToPitchCreation={handleBackToPitchCreation}
-      />
-    );
-  }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-6xl h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">
-            CREATE A RESLINK
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="flex-1 overflow-y-auto p-6">
-          <ProgressSteps currentStep={currentStep} />
+    <AppLayout>
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-2 py-3 md:gap-3 md:py-4 px-4 lg:px-6">
           
-          {currentStep === 1 && (
-            <TitleStep 
-              key="titlestep"
-              title={reslinkTitle}
-              name={name}
-              setTitle={setReslinkTitle}
-              setName={setName}
-              onNext={handleNextStep}
-            />
-          )}
+          
+          <div className="space-y-4">
+            <ProgressSteps currentStep={currentStep} />
+            
+            {currentStep === 1 && (
+              <TitleStep 
+                key="titlestep"
+                title={reslinkTitle}
+                name={name}
+                setTitle={setReslinkTitle}
+                setName={setName}
+                onNext={handleNextStep}
+              />
+            )}
 
-          {currentStep === 2 && (
-            <ResumeUploadStep 
-              resumeFile={resumeFile}
-              setResumeFile={setResumeFile}
-              onNext={handleNextStep}
-              onPrevious={handlePreviousStep}
-            />
-          )}
+            {currentStep === 2 && (
+              <ResumeUploadStep 
+                resumeFile={resumeFile}
+                setResumeFile={setResumeFile}
+                onNext={handleNextStep}
+                onPrevious={handlePreviousStep}
+              />
+            )}
 
-          {currentStep === 3 && (
-            <PitchCreationSection 
-              onStartRecording={handleStartRecording}
-              onPrevious={handlePreviousStep}
-              script={script}
-              setScript={setScript}
-              resumeFile={resumeFile}
-            />
+            {currentStep === 3 && (
+              <PitchCreationSection 
+                onStartRecording={handleStartRecording}
+                onPrevious={handlePreviousStep}
+                script={script}
+                setScript={setScript}
+                resumeFile={resumeFile}
+              />
+            )}
+
+            {currentStep === 4 && (
+              <RecordVideoStep 
+                script={script}
+                onPrevious={handlePreviousStep}
+                onComplete={handleExitTeleprompter}
+              />
+            )}
+          </div>
+          
+          {currentStep !== 4 && (
+            <div className="flex justify-between items-center mt-4 pt-4 border-t">
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+            </div>
           )}
         </div>
-        
-        <div className="flex justify-between items-center p-6 border-t">
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </AppLayout>
   );
 };

@@ -75,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive>
-              <a href="#">
+              <a href="/dashboard">
                 <LayoutDashboardIcon />
                 <span>Dashboard</span>
               </a>

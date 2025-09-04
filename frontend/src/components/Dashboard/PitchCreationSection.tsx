@@ -58,50 +58,50 @@ export const PitchCreationSection: React.FC<PitchCreationSectionProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+      <div className="mb-4">
+        <h1 className="text-lg font-semibold text-foreground mb-1">
           Create Your Pitch
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm">
           Choose how you'd like to create your video pitch and optionally use our teleprompter.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8 mb-8" style={{ minHeight: '600px' }}>
+      <div className="grid lg:grid-cols-2 gap-4 mb-4" style={{ minHeight: '400px' }}>
         {/* Left Section - Recording Options */}
         <div>
           {/* Record Video Option */}
-          <Card className="p-10 text-center hover:shadow-md transition-shadow h-full flex flex-col justify-between">
-            <div className="mb-8">
-              <Video className="h-20 w-20 text-primary mx-auto mb-6" />
-              <h3 className="text-2xl font-semibold text-foreground mb-4">
+          <Card className="p-6 text-center hover:shadow-md transition-shadow h-full flex flex-col justify-between">
+            <div className="mb-4">
+              <Video className="h-12 w-12 text-primary mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 Record Video Pitch
               </h3>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-sm">
                 Use our built-in recorder to capture your pitch in minutes with optional teleprompter support.
               </p>
             </div>
             
-            <div className="space-y-6 flex-grow flex flex-col justify-end">
-              <div className="space-y-4">
-                <div className="flex items-center justify-center gap-3 text-base text-muted-foreground">
-                  <Play className="h-5 w-5" />
+            <div className="space-y-4 flex-grow flex flex-col justify-end">
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Play className="h-4 w-4" />
                   <span>Built-in recorder</span>
                 </div>
-                <div className="flex items-center justify-center gap-3 text-base text-muted-foreground">
-                  <MessageSquare className="h-5 w-5" />
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <MessageSquare className="h-4 w-4" />
                   <span>Teleprompter support</span>
                 </div>
               </div>
               
               <Button 
                 onClick={handleStartRecording}
-                className="w-full gap-2 mt-8 text-lg py-6"
-                size="lg"
+                className="w-full gap-2 mt-4"
+                size="default"
               >
-                <Video className="h-5 w-5" />
+                <Video className="h-4 w-4" />
                 Start Recording
               </Button>
             </div>
@@ -110,11 +110,11 @@ export const PitchCreationSection: React.FC<PitchCreationSectionProps> = ({
 
         {/* Right Section - Teleprompter Script */}
         <div>
-          <Card className="p-8 h-full flex flex-col">
+          <Card className="p-4 h-full flex flex-col">
             {/* Teleprompter Header */}
-            <div className="space-y-4 mb-6">
+            <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-semibold text-foreground">Teleprompter</h3>
+                <h3 className="text-lg font-semibold text-foreground">Teleprompter</h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -126,32 +126,32 @@ export const PitchCreationSection: React.FC<PitchCreationSectionProps> = ({
                 </Button>
               </div>
               
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-sm">
                 Toggle on the teleprompter to display your script while recording your video pitch.
               </p>
             </div>
 
-            <Separator className="mb-6" />
+            <Separator className="mb-4" />
 
             {/* Script Editor - Flex grow to fill available space */}
-            <div className="flex-1 flex flex-col space-y-6">
-              <div className="bg-muted/50 rounded-lg p-6 flex-1" style={{ minHeight: '350px' }}>
+            <div className="flex-1 flex flex-col space-y-4">
+              <div className="bg-muted/50 rounded-lg p-4 flex-1" style={{ minHeight: '250px' }}>
                 <textarea
                   value={script}
                   onChange={(e) => setScript(e.target.value)}
-                  className="w-full h-full resize-none border-none bg-transparent text-foreground text-base leading-relaxed focus:outline-none placeholder:text-muted-foreground"
+                  className="w-full h-full resize-none border-none bg-transparent text-foreground text-sm leading-relaxed focus:outline-none placeholder:text-muted-foreground"
                   placeholder="Use this space to draft your script and stay on point while recording your video. Our AI can help generate a personalized pitch based on your resume!"
                 />
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <Button 
                   onClick={handleWriteWithPitchAI}
                   variant="secondary"
-                  className="w-full gap-2 text-lg py-6"
-                  size="lg"
+                  className="w-full gap-2"
+                  size="default"
                 >
-                  <Zap className="h-5 w-5" />
+                  <Zap className="h-4 w-4" />
                   Write with PitchAI
                 </Button>
 

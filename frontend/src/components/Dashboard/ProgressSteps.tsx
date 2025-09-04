@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Check, User, FileText, Video } from 'lucide-react';
+import { Check, User, FileText, Video, Camera } from 'lucide-react';
 
 interface ProgressStepsProps {
   currentStep?: number;
@@ -24,9 +24,15 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({
     },
     { 
       number: 3, 
-      title: "Video Pitch", 
-      description: "Record your video pitch",
+      title: "Create Script", 
+      description: "Generate your pitch script",
       icon: Video
+    },
+    { 
+      number: 4, 
+      title: "Record Video", 
+      description: "Record your video pitch",
+      icon: Camera
     }
   ];
 
@@ -64,28 +70,28 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto mb-8">
+    <div className="w-full max-w-xl mx-auto mb-4">
       {/* Mobile Progress Bar */}
-      <div className="md:hidden mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-foreground">
+      <div className="md:hidden mb-3">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-medium text-foreground">
             Step {currentStep} of {steps.length}
           </span>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {Math.round((currentStep / steps.length) * 100)}%
           </Badge>
         </div>
-        <div className="w-full bg-muted rounded-full h-2">
+        <div className="w-full bg-muted rounded-full h-1.5">
           <div 
-            className="bg-primary h-2 rounded-full transition-all duration-300 ease-in-out"
+            className="bg-primary h-1.5 rounded-full transition-all duration-300 ease-in-out"
             style={{ width: `${(currentStep / steps.length) * 100}%` }}
           />
         </div>
-        <div className="mt-2 text-center">
-          <h3 className="text-lg font-semibold text-foreground">
+        <div className="mt-1.5 text-center">
+          <h3 className="text-sm font-semibold text-foreground">
             {steps[currentStep - 1]?.title}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {steps[currentStep - 1]?.description}
           </p>
         </div>
@@ -105,22 +111,22 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({
                   <div className="flex flex-col items-center group">
                     {/* Step Circle */}
                     <div className={`
-                      relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200 
+                      relative flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-200 
                       ${styles.circle}
                     `}>
                       {status === 'completed' ? (
-                        <Check className="h-5 w-5" />
+                        <Check className="h-3 w-3" />
                       ) : (
-                        <Icon className="h-5 w-5" />
+                        <Icon className="h-3 w-3" />
                       )}
                     </div>
 
                     {/* Step Content */}
-                    <div className="mt-3 text-center max-w-32">
+                    <div className="mt-2 text-center max-w-28">
                       <div className={`text-sm transition-colors duration-200 ${styles.title}`}>
                         {step.title}
                       </div>
-                      <div className={`text-xs mt-1 transition-colors duration-200 ${styles.description}`}>
+                      <div className={`text-xs mt-0.5 transition-colors duration-200 ${styles.description}`}>
                         {step.description}
                       </div>
                     </div>
@@ -128,9 +134,9 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({
 
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
-                    <div className="absolute top-6 left-1/2 w-full flex items-center">
+                    <div className="absolute top-4 left-1/2 w-full flex items-center">
                       <div className={`
-                        h-0.5 flex-1 transition-colors duration-200 ml-6
+                        h-0.5 flex-1 transition-colors duration-200 ml-4
                         ${styles.connector}
                       `} />
                     </div>

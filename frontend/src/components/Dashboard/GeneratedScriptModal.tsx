@@ -123,7 +123,7 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
@@ -152,12 +152,12 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
           </div>
 
           {/* Script Editor */}
-          <Card className="p-4">
-            <div className="bg-muted/50 rounded-lg p-4">
+          <Card className="p-3">
+            <div className="bg-muted/50 rounded-lg p-3">
               <textarea
                 value={currentScript}
                 onChange={(e) => setCurrentScript(e.target.value)}
-                className="w-full h-64 bg-transparent border-none resize-none focus:outline-none text-sm leading-relaxed"
+                className="w-full h-40 bg-transparent border-none resize-none focus:outline-none text-sm leading-relaxed"
                 placeholder="Your script will appear here..."
                 disabled={isEditing}
               />
@@ -165,13 +165,13 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
           </Card>
 
           {/* AI Edit Options */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold text-foreground">AI Script Adjustments</h3>
+              <Zap className="h-3 w-3 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">AI Script Adjustments</h3>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               {editOptions.map((option) => {
                 const Icon = option.icon;
                 return (
@@ -180,9 +180,9 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
                     variant="outline"
                     onClick={() => handleEditAction(option.id)}
                     disabled={isEditing}
-                    className="flex flex-col h-auto p-4 gap-2"
+                    className="flex flex-col h-auto p-1.5 gap-0.5"
                   >
-                    <Icon className={`h-5 w-5 ${isEditing ? 'animate-spin' : ''}`} />
+                    <Icon className={`h-4 w-4 ${isEditing ? 'animate-spin' : ''}`} />
                     <span className="text-xs font-medium">{option.label}</span>
                   </Button>
                 );
@@ -193,10 +193,10 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
           <Separator />
 
           {/* Custom Edit Input */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Type className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold text-foreground">Custom Instructions</h3>
+              <Type className="h-3 w-3 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Custom Instructions</h3>
             </div>
             
             <div className="flex gap-2">

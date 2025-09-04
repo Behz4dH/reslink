@@ -171,7 +171,7 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
             {/* Name and Job Info */}
             <div className="flex flex-col gap-3 text-center sm:text-left lg:text-left">
               {/* Name - First Row */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase font-bold text-white tracking-wider">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wider">
                 {reslink.name}
               </h1>
 

@@ -231,8 +231,12 @@ reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
     // Update the reslink view count and status
     await reslinkRepository.incrementViewCount(reslink.id);
 
-    // Redirect directly to the video URL
-    res.redirect(reslink.video_url);
+    // Create slug and redirect to public reslink page instead of video
+    const slug = createSlug(reslink.position, reslink.company);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const publicReslinkUrl = `${frontendUrl}/reslink/${slug}`;
+    
+    res.redirect(publicReslinkUrl);
 
   } catch (error) {
     console.error('Error tracking view:', error);
