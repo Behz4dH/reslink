@@ -377,9 +377,9 @@ export const RecordVideoStep: React.FC<RecordVideoStepProps> = ({
                 <Slider
                   value={[settings.scrollSpeed]}
                   onValueChange={(value) => setScrollSpeed(value[0] as any)}
-                  max={5}
-                  min={1}
-                  step={1}
+                  max={3}
+                  min={0}
+                  step={0.2}
                   className="w-full"
                 />
               </div>
