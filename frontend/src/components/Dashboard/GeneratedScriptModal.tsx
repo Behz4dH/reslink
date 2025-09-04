@@ -47,7 +47,7 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
     setIsEditing(true);
     
     try {
-      const response = await fetch('/api/pitch/modify', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pitch/modify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

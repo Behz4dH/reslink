@@ -88,8 +88,8 @@ export const PitchAIModal: React.FC<PitchAIModalProps> = ({
             fullText = await resumeFile.text();
           }
           
-          // Truncate resume to ~3000 characters to fit within token limits
-          resumeText = fullText.length > 3000 ? fullText.substring(0, 3000) + '...' : fullText;
+          // Send full resume text without truncation
+          resumeText = fullText;
         } catch (err) {
           console.warn('Could not read resume file:', err);
           setError('Could not read resume file. Please try a different format.');

@@ -80,7 +80,7 @@ export class AIService {
             content: prompt,
           },
         ],
-        max_tokens: 300,
+        max_tokens: 800,
         temperature: 0.7,
       });
 
@@ -132,7 +132,7 @@ REQUIREMENTS:
 - Start directly with the pitch (no "Here's a script" preamble)
 - Use the EXACT job title and company name from the job posting
 - Reference specific technologies/skills from BOTH the job posting AND my resume
-- ${Math.round(length * 2.5)} words total (~${length} seconds)
+- 400-600 words total (detailed, comprehensive pitch)
 - Professional, confident tone, first person
 
 STRUCTURE:
