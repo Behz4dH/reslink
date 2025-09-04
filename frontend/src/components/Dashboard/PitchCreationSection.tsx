@@ -6,10 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   Video, 
-  Upload, 
   ArrowLeft, 
   Zap, 
-  Crown, 
   MessageSquare,
   Play,
   Eye,
@@ -71,123 +69,94 @@ export const PitchCreationSection: React.FC<PitchCreationSectionProps> = ({
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8 mb-8">
+      <div className="grid lg:grid-cols-2 gap-8 mb-8" style={{ minHeight: '600px' }}>
         {/* Left Section - Recording Options */}
-        <div className="lg:col-span-2">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Record Video Option */}
-            <Card className="p-8 text-center hover:shadow-md transition-shadow">
-              <div className="mb-6">
-                <Video className="h-16 w-16 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Record Video Pitch
-                </h3>
-                <p className="text-muted-foreground">
-                  Use our built-in recorder to capture your pitch in minutes with optional teleprompter support.
-                </p>
-              </div>
-              
+        <div>
+          {/* Record Video Option */}
+          <Card className="p-10 text-center hover:shadow-md transition-shadow h-full flex flex-col justify-between">
+            <div className="mb-8">
+              <Video className="h-20 w-20 text-primary mx-auto mb-6" />
+              <h3 className="text-2xl font-semibold text-foreground mb-4">
+                Record Video Pitch
+              </h3>
+              <p className="text-muted-foreground text-lg">
+                Use our built-in recorder to capture your pitch in minutes with optional teleprompter support.
+              </p>
+            </div>
+            
+            <div className="space-y-6 flex-grow flex flex-col justify-end">
               <div className="space-y-4">
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Play className="h-4 w-4" />
+                <div className="flex items-center justify-center gap-3 text-base text-muted-foreground">
+                  <Play className="h-5 w-5" />
                   <span>Built-in recorder</span>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <MessageSquare className="h-4 w-4" />
+                <div className="flex items-center justify-center gap-3 text-base text-muted-foreground">
+                  <MessageSquare className="h-5 w-5" />
                   <span>Teleprompter support</span>
                 </div>
-                
-                <Button 
-                  onClick={handleStartRecording}
-                  className="w-full gap-2"
-                  size="lg"
-                >
-                  <Video className="h-4 w-4" />
-                  Start Recording
-                </Button>
-              </div>
-            </Card>
-
-            {/* Upload Video Option */}
-            <Card className="p-8 text-center hover:shadow-md transition-shadow border-dashed">
-              <div className="mb-6">
-                <Upload className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Upload Custom Video
-                </h3>
-                <p className="text-muted-foreground">
-                  Already have a professionally edited video or custom pitch? Upload your own file.
-                </p>
               </div>
               
-              <div className="space-y-4">
-                <Badge variant="secondary" className="mx-auto">
-                  <Crown className="h-3 w-3 mr-1" />
-                  Premium Feature
-                </Badge>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full gap-2" 
-                  size="lg"
-                  disabled
-                >
-                  <Crown className="h-4 w-4" />
-                  Upgrade to Premium
-                </Button>
-              </div>
-            </Card>
-          </div>
+              <Button 
+                onClick={handleStartRecording}
+                className="w-full gap-2 mt-8 text-lg py-6"
+                size="lg"
+              >
+                <Video className="h-5 w-5" />
+                Start Recording
+              </Button>
+            </div>
+          </Card>
         </div>
 
         {/* Right Section - Teleprompter Script */}
-        <div className="lg:col-span-1">
-          <Card className="p-6 h-full">
-            <div className="space-y-6">
-              {/* Teleprompter Header */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">Teleprompter</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setTeleprompterEnabled(!teleprompterEnabled)}
-                    className={`gap-2 ${teleprompterEnabled ? 'text-primary' : 'text-muted-foreground'}`}
-                  >
-                    {teleprompterEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                    {teleprompterEnabled ? 'Enabled' : 'Disabled'}
-                  </Button>
-                </div>
-                
-                <p className="text-sm text-muted-foreground">
-                  Toggle on the teleprompter to display your script while recording your video pitch.
-                </p>
+        <div>
+          <Card className="p-8 h-full flex flex-col">
+            {/* Teleprompter Header */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-semibold text-foreground">Teleprompter</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTeleprompterEnabled(!teleprompterEnabled)}
+                  className={`gap-2 ${teleprompterEnabled ? 'text-primary' : 'text-muted-foreground'}`}
+                >
+                  {teleprompterEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  {teleprompterEnabled ? 'Enabled' : 'Disabled'}
+                </Button>
+              </div>
+              
+              <p className="text-muted-foreground text-lg">
+                Toggle on the teleprompter to display your script while recording your video pitch.
+              </p>
+            </div>
+
+            <Separator className="mb-6" />
+
+            {/* Script Editor - Flex grow to fill available space */}
+            <div className="flex-1 flex flex-col space-y-6">
+              <div className="bg-muted/50 rounded-lg p-6 flex-1" style={{ minHeight: '350px' }}>
+                <textarea
+                  value={script}
+                  onChange={(e) => setScript(e.target.value)}
+                  className="w-full h-full resize-none border-none bg-transparent text-foreground text-base leading-relaxed focus:outline-none placeholder:text-muted-foreground"
+                  placeholder="Use this space to draft your script and stay on point while recording your video. Our AI can help generate a personalized pitch based on your resume!"
+                />
               </div>
 
-              <Separator />
-
-              {/* Script Editor */}
               <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4" style={{ minHeight: '300px' }}>
-                  <textarea
-                    value={script}
-                    onChange={(e) => setScript(e.target.value)}
-                    className="w-full h-full min-h-[260px] resize-none border-none bg-transparent text-foreground text-sm leading-relaxed focus:outline-none placeholder:text-muted-foreground"
-                    placeholder="Use this space to draft your script and stay on point while recording your video. Our AI can help generate a personalized pitch based on your resume!"
-                  />
-                </div>
-
                 <Button 
                   onClick={handleWriteWithPitchAI}
                   variant="secondary"
-                  className="w-full gap-2"
+                  className="w-full gap-2 text-lg py-6"
+                  size="lg"
                 >
-                  <Zap className="h-4 w-4" />
+                  <Zap className="h-5 w-5" />
                   Write with PitchAI
                 </Button>
 
                 {script && (
-                  <div className="text-xs text-muted-foreground text-center">
+                  <div className="text-sm text-muted-foreground text-center">
                     {script.trim().split(' ').length} words • ~{Math.ceil(script.trim().split(' ').length / 150)} min read
                   </div>
                 )}

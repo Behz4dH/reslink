@@ -43,6 +43,11 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
     setShowTeleprompter(true);
   };
 
+  const handleBackToPitchCreation = () => {
+    setShowTeleprompter(false);
+    setCurrentStep(3); // Go back to pitch creation step
+  };
+
   const handleExitTeleprompter = async (uploadedVideoUrl?: string) => {
     setShowTeleprompter(false);
     
@@ -114,6 +119,7 @@ export const CreateReslinkFlow = ({ open, onClose, onComplete }: CreateReslinkFl
       <Teleprompter 
         script={script}
         onExit={handleExitTeleprompter}
+        onBackToPitchCreation={handleBackToPitchCreation}
       />
     );
   }

@@ -28,6 +28,7 @@ import {
 interface TeleprompterProps {
   script?: string;
   onExit?: (uploadedVideoUrl?: string) => void;
+  onBackToPitchCreation?: () => void;
 }
 
 type TeleprompterSettings = {
@@ -39,7 +40,8 @@ type TeleprompterSettings = {
 
 export const Teleprompter: React.FC<TeleprompterProps> = ({ 
   script = '', 
-  onExit = () => {} 
+  onExit = () => {},
+  onBackToPitchCreation = () => {}
 }) => {
   const [teleprompterEnabled, setTeleprompterEnabled] = useState(true);
   const {
@@ -117,15 +119,26 @@ export const Teleprompter: React.FC<TeleprompterProps> = ({
       <div className="border-b bg-card shadow-sm">
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={handleExit}
-              disabled={isUploading}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Back'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={onBackToPitchCreation}
+                disabled={isUploading}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Edit Script
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleExit}
+                disabled={isUploading}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {isUploading ? 'Uploading...' : 'Exit'}
+              </Button>
+            </div>
             <h1 className="text-2xl font-bold text-foreground">Record Your Pitch</h1>
           </div>
           
@@ -220,7 +233,7 @@ export const Teleprompter: React.FC<TeleprompterProps> = ({
                               paddingBottom: '100vh'
                             }}
                           >
-                            <div style={{ height: '70vh', marginBottom: '0' }}></div>
+                            <div style={{ height: '35vh', marginBottom: '0' }}></div>
                             {script.split('\n').map((paragraph, index) => (
                               <p key={index} className="mb-8 leading-tight max-w-4xl mx-auto">
                                 {paragraph}
@@ -414,7 +427,7 @@ export const Teleprompter: React.FC<TeleprompterProps> = ({
                     <textarea
                       value={script}
                       readOnly
-                      className="w-full h-48 resize-none border-none bg-transparent text-sm leading-relaxed focus:outline-none"
+                      className="w-full h-80 resize-none border-none bg-transparent text-sm leading-relaxed focus:outline-none"
                       placeholder="Your script will appear here and overlay on the video when teleprompter is enabled..."
                     />
                   </Card>

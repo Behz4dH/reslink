@@ -16,8 +16,8 @@ export interface BadgeOptions {
 }
 
 export class PDFBadgeService {
-  private static readonly DEFAULT_BADGE_WIDTH = 100;
-  private static readonly DEFAULT_BADGE_HEIGHT = 30;
+  private static readonly DEFAULT_BADGE_WIDTH = 120;
+  private static readonly DEFAULT_BADGE_HEIGHT = 35;
   private static readonly DEFAULT_BASE_URL = 'https://reslink.app';
 
   /**
@@ -43,7 +43,7 @@ export class PDFBadgeService {
       // Calculate badge position (default: top-right corner with margin)
       const badgeWidth = options.size?.width || this.DEFAULT_BADGE_WIDTH;
       const badgeHeight = options.size?.height || this.DEFAULT_BADGE_HEIGHT;
-      const margin = 10;
+      const margin = 20;
       
       const badgeX = options.position?.x ?? (pageWidth - badgeWidth - margin);
       const badgeY = options.position?.y ?? (pageHeight - badgeHeight - margin);
@@ -80,10 +80,10 @@ export class PDFBadgeService {
       const font = await page.doc.embedFont(StandardFonts.Helvetica);
       const boldFont = await page.doc.embedFont(StandardFonts.HelveticaBold);
       
-      // Badge colors (matching the design from reslink-badge.png)
-      const badgeColor = rgb(0.2, 0.4, 0.9); // Blue color
+      // Badge colors (matching the playbutton.png design)
+      const badgeColor = rgb(0.24, 0.51, 0.91); // Bright blue color like in playbutton.png
       const textColor = rgb(1, 1, 1); // White text
-      const borderRadius = 6;
+      const borderRadius = 8; // More rounded corners like the design
       
       // Draw the badge background with rounded corners simulation
       // Main rectangle (slightly smaller to create rounded effect)
@@ -142,29 +142,59 @@ export class PDFBadgeService {
         color: badgeColor,
       });
       
-      // Calculate text positioning with link symbol  
-      const linkSymbol = '🔗'; // Link emoji
-      const badgeText = ' View Reslink';
-      const fullText = linkSymbol + badgeText;
-      const fontSize = Math.min(10, height * 0.4); // Responsive font size
+      // Draw play icon (triangle) and text like in playbutton.png
+      const badgeText = 'Play Intro';
+      const fontSize = Math.min(11, height * 0.35); // Responsive font size
+      const textWidth = boldFont.widthOfTextAtSize(badgeText, fontSize);
       
-      // Try with emoji, fallback to plain text if it fails
-      let textWidth;
-      let displayText;
-      try {
-        textWidth = boldFont.widthOfTextAtSize(fullText, fontSize);
-        displayText = fullText;
-      } catch (encodingError) {
-        // Fallback to text without emoji
-        displayText = 'View Reslink';
-        textWidth = boldFont.widthOfTextAtSize(displayText, fontSize);
+      // Calculate positions for play icon and text
+      const playIconSize = height * 0.4; // Size of the play triangle
+      const totalContentWidth = playIconSize + 6 + textWidth; // icon + gap + text
+      const startX = x + (width - totalContentWidth) / 2; // Center the content
+      
+      // Draw play triangle (pointing right)
+      const triangleX = startX;
+      const triangleY = y + height / 2;
+      const triangleHeight = playIconSize * 0.8;
+      const triangleWidth = playIconSize * 0.7;
+      
+      // Draw the play triangle using three lines to form a triangle
+      page.drawLine({
+        start: { x: triangleX, y: triangleY - triangleHeight/2 },
+        end: { x: triangleX + triangleWidth, y: triangleY },
+        color: textColor,
+        thickness: 2,
+      });
+      page.drawLine({
+        start: { x: triangleX + triangleWidth, y: triangleY },
+        end: { x: triangleX, y: triangleY + triangleHeight/2 },
+        color: textColor,
+        thickness: 2,
+      });
+      page.drawLine({
+        start: { x: triangleX, y: triangleY + triangleHeight/2 },
+        end: { x: triangleX, y: triangleY - triangleHeight/2 },
+        color: textColor,
+        thickness: 2,
+      });
+      
+      // Fill the triangle by drawing smaller triangles
+      for (let i = 0; i < triangleWidth; i += 1) {
+        const ratio = i / triangleWidth;
+        const lineHeight = triangleHeight * (1 - ratio);
+        page.drawLine({
+          start: { x: triangleX + i, y: triangleY - lineHeight/2 },
+          end: { x: triangleX + i, y: triangleY + lineHeight/2 },
+          color: textColor,
+          thickness: 1,
+        });
       }
       
-      const textX = x + (width - textWidth) / 2; // Center horizontally
+      // Draw the text next to the play icon
+      const textX = triangleX + triangleWidth + 6; // 6px gap from triangle
       const textY = y + (height / 2) - (fontSize / 2); // Center vertically
       
-      // Draw the text
-      page.drawText(displayText, {
+      page.drawText(badgeText, {
         x: textX,
         y: textY,
         size: fontSize,

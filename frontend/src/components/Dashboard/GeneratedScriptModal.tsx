@@ -47,7 +47,7 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
     setIsEditing(true);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pitch/modify`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/pitch/modify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,14 +223,6 @@ export const GeneratedScriptModal: React.FC<GeneratedScriptModalProps> = ({
             </div>
           </div>
 
-          {/* Pro Tip */}
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Pro tip:</strong> Keep your script between 60-90 seconds (about 150-225 words) for the best impact. 
-              Practice reading it aloud before recording.
-            </AlertDescription>
-          </Alert>
         </div>
 
         <DialogFooter>

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { PlayIcon, DownloadIcon, UserIcon, BriefcaseIcon, ArrowLeftIcon, LogOutIcon, LinkedinIcon } from 'lucide-react';
+import { PlayIcon, DownloadIcon, UserIcon, BriefcaseIcon, ArrowLeftIcon, LogOutIcon, LinkedinIcon, XIcon } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useAuth } from '@/contexts/AuthContext';
+import ReactPlayer from 'react-player';
 import type { Reslink } from '../types/reslink';
 
 interface PublicReslinkPageProps {}
@@ -16,12 +17,25 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
   const [reslink, setReslink] = useState<Reslink | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
     if (slug) {
       fetchReslinkBySlug(slug);
     }
   }, [slug]);
+
+  // Handle Escape key to close video modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showVideoModal) {
+        setShowVideoModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showVideoModal]);
 
   const fetchReslinkBySlug = async (slug: string) => {
     try {
@@ -41,8 +55,17 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
 
   const handlePlayVideo = () => {
     if (reslink?.video_url) {
-      window.open(reslink.video_url, '_blank');
+      console.log('Opening video modal with URL:', reslink.video_url);
+      console.log('Video URL type:', typeof reslink.video_url);
+      console.log('Is valid URL:', reslink.video_url.startsWith('http') || reslink.video_url.startsWith('/'));
+      setShowVideoModal(true);
+    } else {
+      console.log('No video URL available:', reslink?.video_url);
     }
+  };
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
   };
 
   const handleDownloadResume = () => {
@@ -184,7 +207,11 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
               disabled={!reslink.video_url}
               className="w-full sm:w-72 h-14 bg-lime-400 text-slate-900 hover:bg-lime-500 text-lg font-semibold rounded-xl"
             >
-              <PlayIcon className="h-5 w-5 mr-3" />
+              <div className="relative mr-3">
+                <div className="w-8 h-8 rounded-full border-2 border-slate-900 flex items-center justify-center animate-pulse hover:animate-none focus:animate-none">
+                  <PlayIcon className="h-4 w-4" />
+                </div>
+              </div>
               Play Reslink
             </Button>
 
@@ -220,6 +247,91 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
           )}
         </div>
       </section>
+
+      {/* Video Player Modal */}
+      {showVideoModal && reslink?.video_url && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            // Close modal when clicking the backdrop
+            if (e.target === e.currentTarget) {
+              handleCloseVideoModal();
+            }
+          }}
+        >
+          <div className="relative w-full max-w-4xl mx-auto bg-black rounded-lg overflow-hidden shadow-2xl">
+            {/* Close Button */}
+            <Button
+              onClick={handleCloseVideoModal}
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4 z-20 bg-black bg-opacity-70 hover:bg-opacity-90 text-white border-white border rounded-full w-10 h-10 p-0"
+            >
+              <XIcon className="h-5 w-5" />
+            </Button>
+            
+            {/* Video Player */}
+            <div className="aspect-video bg-black">
+              {/* First try direct HTML5 video for WebM files */}
+              {reslink.video_url.includes('.webm') ? (
+                <video
+                  className="w-full h-full"
+                  controls
+                  autoPlay
+                  preload="metadata"
+                  onError={(e) => {
+                    console.error('Direct HTML5 video error:', e);
+                  }}
+                  onLoadedData={() => {
+                    console.log('Direct HTML5 video loaded successfully');
+                  }}
+                  onCanPlay={() => {
+                    console.log('Video can start playing');
+                  }}
+                >
+                  <source src={reslink.video_url} type="video/webm" />
+                  <source src={reslink.video_url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <ReactPlayer
+                  url={reslink.video_url}
+                  width="100%"
+                  height="100%"
+                  controls={true}
+                  playing={false}
+                  pip={true}
+                  playsinline={true}
+                  config={{
+                    file: {
+                      attributes: {
+                        controlsList: 'nodownload',
+                        preload: 'metadata'
+                      }
+                    }
+                  }}
+                  onError={(error) => {
+                    console.error('ReactPlayer error:', error);
+                    console.log('Failed URL:', reslink.video_url);
+                  }}
+                  onReady={() => {
+                    console.log('ReactPlayer ready');
+                  }}
+                  onStart={() => {
+                    console.log('ReactPlayer started');
+                  }}
+                  onProgress={(progress) => {
+                    console.log('Video progress:', progress);
+                  }}
+                  onDuration={(duration) => {
+                    console.log('Video duration:', duration);
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
