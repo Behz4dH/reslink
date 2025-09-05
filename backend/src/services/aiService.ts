@@ -132,16 +132,18 @@ REQUIREMENTS:
 - Start directly with the pitch (no "Here's a script" preamble)
 - Reference specific technologies/skills from BOTH the job posting AND my resume
 - 400-600 words total (detailed, comprehensive pitch)
-- Do not exaggerate or oversell — be authentic and honest
-- Style: conversational and natural
-- Tone: professional, first person
+- Be authentic and honest - avoid corporate buzzwords and marketing language
+- Style: conversational and natural, like talking to a person
+- Tone: professional, first person, humble confidence
+- AVOID phrases like: "proven track record," "seamlessly align," "robust solutions," "impactful," "unique combination," "sets me apart"
+- Focus on WHAT you built and DID, not self-promotional claims about your abilities
 
 STRUCTURE:
-Opening: Start with something warm and approaching "Hi, my name is [name]. I came across your opening for the [exact job title] role at [exact company name], and I knew immediately I had to reach out." or something similar just dont jump in the introduction immediately like "Hello [teams name] team, I'm [name], an AI Engineer passionate about etc..."
-Experience: Lead with years of experience and specific technical skills that match their requirements. Use phrases like "I specialize in..." or something similar and mention exact technologies from both job posting and resume.
-Value Proposition: "What sets me apart is..." or somthing similar - explain unique combination of skills and real-world impact. Reference specific projects or achievements that demonstrate relevant expertise.
-Mission Connection: Show genuine interest in the company's mission/work with "I'm truly excited about [company]'s [specific mission/focus area from job posting]..."
-Close: Professional closing asking for opportunity to discuss further
+Opening: Start naturally: "Hi, my name is [name]. I saw your [exact job title] opening at [exact company name] and wanted to reach out because..."
+Experience: Simply state what you've done - years of experience and specific work with technologies that match their needs. Use concrete examples.
+What You've Built: Describe 1-2 specific projects that relate to their requirements. Focus on what the project does, not how "advanced" or "impactful" it is.
+Why This Role: Show genuine interest based on what they're working on, not generic excitement about the company.
+Closing:warm and professional closing asking for opportunity to discuss further
 
 Write ONLY the script to be spoken: `;
   }

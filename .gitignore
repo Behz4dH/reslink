@@ -8,3 +8,4 @@ backend/data/reslinks.db*
 backend/public/avatars/
 backend/public/videos/
 backend/public/resumes/
+backend/.env
