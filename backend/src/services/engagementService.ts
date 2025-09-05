@@ -54,40 +54,71 @@ export class EngagementService {
         ...additionalData
       };
 
-      const insertQuery = `
-        INSERT INTO reslink_views (
-          reslink_id, viewer_identifier, viewed_at, ip_address, 
-          user_agent, referrer, session_id
-        ) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
-      `;
+      // Use different approaches for SQLite vs PostgreSQL
+      if (DatabaseService.isProduction()) {
+        // PostgreSQL - use RETURNING clause
+        const insertQuery = `
+          INSERT INTO reslink_views (
+            reslink_id, viewer_identifier, viewed_at, ip_address, 
+            user_agent, referrer, session_id
+          ) VALUES ($1, $2, CURRENT_TIMESTAMP, $3, $4, $5, $6)
+          RETURNING *
+        `;
 
-      const result = await DatabaseService.executeCommand(
-        insertQuery,
-        [
-          viewData.reslink_id,
-          viewData.viewer_identifier,
-          viewData.ip_address,
-          viewData.user_agent,
-          viewData.referrer,
-          viewData.session_id
-        ]
-      );
+        const view = await DatabaseService.executeQuerySingle<ReslinkView>(
+          insertQuery,
+          [
+            viewData.reslink_id,
+            viewData.viewer_identifier,
+            viewData.ip_address,
+            viewData.user_agent,
+            viewData.referrer,
+            viewData.session_id
+          ]
+        );
 
-      // Get the created view record
-      const selectQuery = `
-        SELECT * FROM reslink_views WHERE id = ?
-      `;
+        if (!view) {
+          throw new Error('Failed to create view record');
+        }
 
-      const view = await DatabaseService.executeQuerySingle<ReslinkView>(
-        selectQuery,
-        [result.lastInsertRowid]
-      );
+        return view;
+      } else {
+        // SQLite - use the original approach
+        const insertQuery = `
+          INSERT INTO reslink_views (
+            reslink_id, viewer_identifier, viewed_at, ip_address, 
+            user_agent, referrer, session_id
+          ) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
+        `;
 
-      if (!view) {
-        throw new Error('Failed to retrieve created view record');
+        const result = await DatabaseService.executeCommand(
+          insertQuery,
+          [
+            viewData.reslink_id,
+            viewData.viewer_identifier,
+            viewData.ip_address,
+            viewData.user_agent,
+            viewData.referrer,
+            viewData.session_id
+          ]
+        );
+
+        // Get the created view record
+        const selectQuery = `
+          SELECT * FROM reslink_views WHERE id = ?
+        `;
+
+        const view = await DatabaseService.executeQuerySingle<ReslinkView>(
+          selectQuery,
+          [result.lastInsertRowid]
+        );
+
+        if (!view) {
+          throw new Error('Failed to retrieve created view record');
+        }
+
+        return view;
       }
-
-      return view;
 
     } catch (error) {
       console.error('Error tracking view:', error);
