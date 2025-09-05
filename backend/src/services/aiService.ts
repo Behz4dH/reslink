@@ -73,7 +73,7 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional pitch writer. Write ONLY the video pitch script - no explanations, no preamble, no "Here\'s a script" - just the actual words to be spoken in the video.',
+            content: 'You are an expert career coach who specializes in helping job seekers create short, natural-sounding video introductions for recruiters.',
           },
           {
             role: 'user',
@@ -110,11 +110,11 @@ export class AIService {
   }
 
   private static buildPrompt(description: string, resume: string | undefined, length: number, tone: string): string {
-    const toneInstructions = {
-      professional: 'formal, confident, and business-appropriate',
-      casual: 'friendly, approachable, and conversational',
-      enthusiastic: 'energetic, passionate, and engaging',
-    };
+    // const toneInstructions = {
+    //   professional: 'formal, confident, and business-appropriate',
+    //   casual: 'friendly, approachable, and conversational',
+    //   enthusiastic: 'energetic, passionate, and engaging',
+    // };
 
     const resumeSection = resume ? `
 
@@ -123,7 +123,7 @@ ${resume}
 
 ` : '';
 
-    return `Write a ${length}-second professional video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their specific requirements.
+    return `Write a ${length}-second professional video pitch script.Match my resume experience to their specific requirements.
 
 JOB POSTING:
 ${description}${resumeSection}
@@ -132,15 +132,16 @@ REQUIREMENTS:
 - Start directly with the pitch (no "Here's a script" preamble)
 - Use the EXACT job title and company name from the job posting
 - Reference specific technologies/skills from BOTH the job posting AND my resume
-- 400-600 words total (detailed, comprehensive pitch)
-- Professional, confident tone, first person
+- 400-600 words Max
+- professional, confident, and approachable (like a friendly conversation, not a cover letter), first person
+- Natural, engaging language (avoid buzzwords or overly complex phrasing)
+- Do not exaggerate or oversell — focus on authenticity.
 
 STRUCTURE:
-Opening: "Hi, my name is [name]. I came across your opening for the [exact job title] role at [exact company name], and I knew immediately I had to reach out."
-Experience: Lead with years of experience and specific technical skills that match their requirements. Use phrases like "I specialize in..." and mention exact technologies from both job posting and resume.
-Value Proposition: "What sets me apart is..." - explain unique combination of skills and real-world impact. Reference specific projects or achievements that demonstrate relevant expertise.
-Mission Connection: Show genuine interest in the company's mission/work with "I'm truly excited about [company]'s [specific mission/focus area from job posting]..."
-Close: Professional closing asking for opportunity to discuss further.
+Opening Hook (15-20 seconds): Brief, confident introduction with name and core professional identity
+Relevant Experience (30-40 seconds): highlight 2–3 of the most relevant skills, experiences, or achievements from my resume that align with the job description.
+Company Connection (10-15 seconds): Genuine reason for interest in this specific role/company
+Call to Action (10-15 seconds): Professional but warm closing that invites conversation
 
 Write ONLY the script to be spoken:`;
   }
