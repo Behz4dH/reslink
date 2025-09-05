@@ -106,7 +106,16 @@ reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('❌ Error in /view/:uniqueId route:', error);
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    res.status(500).send('Error accessing video');
+    
+    // Return detailed error info for debugging
+    const errorDetails = {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      timestamp: new Date().toISOString(),
+      uniqueId: req.params.uniqueId
+    };
+    
+    res.status(500).json(errorDetails);
   }
 });
 
