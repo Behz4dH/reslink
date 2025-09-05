@@ -114,6 +114,19 @@ export const PublicReslinkPage = ({}: PublicReslinkPageProps) => {
 
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900">
+      {/* Scrolling Banner */}
+      <div className="bg-lime-400 text-slate-900 py-1 overflow-hidden relative z-20">
+        <div className="animate-scroll whitespace-nowrap">
+          <span className="inline-block px-4 text-sm font-medium">
+            Hi! I built this platform for myself to streamline the process of making video pitches and not pay for monthly subscriptions of apps that do something similar. You can check it out at{' '}
+            <a href="/dashboard" className="underline font-semibold hover:text-slate-700 transition-colors">
+              Here
+            </a>{' '}
+            • Tell me what you think. I appreciate your feedback at <a href="mailto:behzadhatamikia@outlook.com" className="underline font-semibold hover:text-slate-700 transition-colors">behzadhatamikia@outlook.com</a>🚀 Cheers!
+          </span>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="sticky top-0 w-full h-20 px-10 flex items-center justify-between z-10 bg-gradient-to-br from-slate-800 to-slate-900">
         <Button 
