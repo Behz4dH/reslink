@@ -65,34 +65,47 @@ reslinkRouter.get('/', authenticateToken, async (req: AuthenticatedRequest, res:
 // GET /api/reslinks/view/:uniqueId - Public endpoint for tracking views (used by resume badge)
 reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
   try {
+    console.log('🎯 VIEW ROUTE HIT:', req.params.uniqueId, new Date().toISOString());
     const { uniqueId } = req.params;
     
-    // Find the reslink
+    console.log('🔍 Step 1: Finding reslink for uniqueId:', uniqueId);
     const reslink = await reslinkRepository.findByUniqueId(uniqueId);
+    console.log('📝 Step 1 Result: Reslink found:', !!reslink, reslink ? { id: reslink.id, title: reslink.title } : 'null');
+    
     if (!reslink) {
+      console.log('❌ No reslink found, returning 404');
       return res.status(404).send('Reslink not found');
     }
 
-    // Check if video URL exists
+    console.log('🎥 Step 2: Checking video URL exists:', !!reslink.video_url);
     if (!reslink.video_url) {
+      console.log('❌ No video URL, returning 404');
       return res.status(404).send('Video not available');
     }
 
-    // Track the detailed view with engagement service
+    console.log('📊 Step 3: About to track view for reslink ID:', reslink.id);
     await EngagementService.trackView(reslink.id, req);
+    console.log('✅ Step 3 Complete: View tracked successfully');
 
-    // Update the reslink view count and status
+    console.log('🔢 Step 4: About to increment view count for reslink ID:', reslink.id);
     await reslinkRepository.incrementViewCount(reslink.id);
+    console.log('✅ Step 4 Complete: View count incremented');
 
-    // Create slug and redirect to public reslink page instead of video
+    console.log('🏷️ Step 5: Creating slug from position:', reslink.position, 'company:', reslink.company);
     const slug = createSlug(reslink.position, reslink.company);
+    console.log('✅ Step 5 Complete: Slug created:', slug);
+
+    console.log('🌐 Step 6: Building frontend URL, FRONTEND_URL env:', process.env.FRONTEND_URL);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const publicReslinkUrl = `${frontendUrl}/reslink/${slug}`;
+    console.log('✅ Step 6 Complete: Redirect URL:', publicReslinkUrl);
     
+    console.log('🔀 Step 7: Redirecting to:', publicReslinkUrl);
     res.redirect(publicReslinkUrl);
 
   } catch (error) {
-    console.error('Error tracking view:', error);
+    console.error('❌ Error in /view/:uniqueId route:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     res.status(500).send('Error accessing video');
   }
 });
