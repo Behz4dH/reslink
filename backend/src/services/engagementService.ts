@@ -73,15 +73,28 @@ export class EngagementService {
         ]
       );
 
-      // Get the created view record
-      const selectQuery = `
-        SELECT * FROM reslink_views WHERE id = ?
-      `;
-
-      const view = await DatabaseService.executeQuerySingle<ReslinkView>(
-        selectQuery,
-        [result.lastInsertRowid]
-      );
+      // Get the created view record (different for SQLite vs PostgreSQL)
+      let view: ReslinkView | null = null;
+      
+      if (result.lastInsertRowid) {
+        // SQLite - use lastInsertRowid
+        const selectQuery = `SELECT * FROM reslink_views WHERE id = ?`;
+        view = await DatabaseService.executeQuerySingle<ReslinkView>(
+          selectQuery,
+          [result.lastInsertRowid]
+        );
+      } else {
+        // PostgreSQL - get the most recently created view for this reslink and viewer
+        const selectQuery = `
+          SELECT * FROM reslink_views 
+          WHERE reslink_id = ? AND viewer_identifier = ? 
+          ORDER BY viewed_at DESC LIMIT 1
+        `;
+        view = await DatabaseService.executeQuerySingle<ReslinkView>(
+          selectQuery,
+          [viewData.reslink_id, viewData.viewer_identifier]
+        );
+      }
 
       if (!view) {
         throw new Error('Failed to retrieve created view record');
