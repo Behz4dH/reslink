@@ -63,9 +63,9 @@ export class AIService {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { description, resume, length = 60, tone = 'professional' } = input;
+    const { description, resume, length = 60} = input;
 
-    const prompt = this.buildPrompt(description, resume, length, tone);
+    const prompt = this.buildPrompt(description, resume, length);
 
     try {
       const response = await openai.chat.completions.create({
@@ -109,7 +109,7 @@ export class AIService {
     }
   }
 
-  private static buildPrompt(description: string, resume: string | undefined, length: number, tone: string): string {
+  private static buildPrompt(description: string, resume: string | undefined, length: number): string {
     // const toneInstructions = {
     //   professional: 'formal, confident, and business-appropriate',
     //   casual: 'friendly, approachable, and conversational',
@@ -123,25 +123,26 @@ ${resume}
 
 ` : '';
 
-    return `Write a ${length}-second professional video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their specific requirements.
+    return `Write a ${length}-second video pitch script. Use the EXACT job title and company name from the job posting. Match my resume experience to their specific requirements.
 
 JOB POSTING:
 ${description}${resumeSection}
 
 REQUIREMENTS:
 - Start directly with the pitch (no "Here's a script" preamble)
-- Use the EXACT job title and company name from the job posting
 - Reference specific technologies/skills from BOTH the job posting AND my resume
 - 400-600 words total (detailed, comprehensive pitch)
-- Professional, first person
+- Do not exaggerate or oversell — be authentic and honest
+- Style: conversational and natural
+- Tone: professional, first person
 
 STRUCTURE:
-Opening: Start with something warm and approaching while staying professional"Hi, my name is [name]. I came across your opening for the [exact job title] role at [exact company name], and I knew immediately I had to reach out." or something similar
+Opening: Start with something warm and approaching "Hi, my name is [name]. I came across your opening for the [exact job title] role at [exact company name], and I knew immediately I had to reach out." or something similar just dont jump in the introduction immediately like "Hello [teams name] team, I'm [name], an AI Engineer passionate about etc..."
 Experience: Lead with years of experience and specific technical skills that match their requirements. Use phrases like "I specialize in..." or something similar and mention exact technologies from both job posting and resume.
 Value Proposition: "What sets me apart is..." or somthing similar - explain unique combination of skills and real-world impact. Reference specific projects or achievements that demonstrate relevant expertise.
 Mission Connection: Show genuine interest in the company's mission/work with "I'm truly excited about [company]'s [specific mission/focus area from job posting]..."
-Close: Professional closing asking for opportunity to discuss further with a tinge of natural expression of enthusiasm and openness to connect
+Close: Professional closing asking for opportunity to discuss further
 
-Write ONLY the script to be spoken:`;
+Write ONLY the script to be spoken: `;
   }
 }
