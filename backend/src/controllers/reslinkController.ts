@@ -83,9 +83,9 @@ reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
       return res.status(404).send('Video not available');
     }
 
-    console.log('📊 Step 3: About to track view for reslink ID:', reslink.id);
-    await EngagementService.trackView(reslink.id, req);
-    console.log('✅ Step 3 Complete: View tracked successfully');
+    console.log('📊 Step 3: Skipping engagement tracking (PostgreSQL compatibility issue)');
+    // await EngagementService.trackView(reslink.id, req);
+    console.log('✅ Step 3 Complete: Engagement tracking skipped');
 
     console.log('🔢 Step 4: About to increment view count for reslink ID:', reslink.id);
     await reslinkRepository.incrementViewCount(reslink.id);
