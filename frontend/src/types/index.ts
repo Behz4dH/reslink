@@ -13,7 +13,7 @@ export interface GeneratedPitch {
 
 export interface TeleprompterSettings {
   fontSize: 'small' | 'medium' | 'large';
-  scrollSpeed: 1 | 2 | 3 | 4 | 5;
+  scrollSpeed: number;
   isPlaying: boolean;
   currentPosition: number;
 }

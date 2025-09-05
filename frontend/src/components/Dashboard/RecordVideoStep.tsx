@@ -371,15 +371,15 @@ export const RecordVideoStep: React.FC<RecordVideoStepProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <Label className="text-sm font-medium">Scroll Speed</Label>
                   <Badge variant="secondary" className="text-xs">
-                    {settings.scrollSpeed}/1
+                    {settings.scrollSpeed}/3
                   </Badge>
                 </div>
                 <Slider
                   value={[settings.scrollSpeed]}
                   onValueChange={(value) => setScrollSpeed(value[0] as any)}
-                  max={1}
+                  max={3}
                   min={0}
-                  step={0.05}
+                  step={0.1}
                   className="w-full"
                 />
               </div>

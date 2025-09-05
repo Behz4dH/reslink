@@ -12,20 +12,16 @@ export const useTeleprompter = (_script: string) => {
   const intervalRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollSpeeds = {
-    1: 2,   // Very slow - 2px per 50ms
-    2: 3,   // Slow - 3px per 50ms  
-    3: 4,   // Medium - 4px per 50ms
-    4: 6,   // Fast - 6px per 50ms
-    5: 8,   // Very fast - 8px per 50ms
-  };
+  // Calculate scroll speed dynamically: scrollSpeed * 2 gives pixels per 50ms
+  // Range 0-3: 0px/50ms to 6px/50ms
+  const getScrollSpeed = (speed: number) => Math.max(0.1, speed * 2);
 
   useEffect(() => {
     if (settings.isPlaying) {
       intervalRef.current = setInterval(() => {
         setSettings(prev => ({
           ...prev,
-          currentPosition: prev.currentPosition + scrollSpeeds[settings.scrollSpeed],
+          currentPosition: prev.currentPosition + getScrollSpeed(settings.scrollSpeed),
         }));
       }, 50); // Scroll every 50ms for smooth movement
     } else {
