@@ -62,6 +62,41 @@ reslinkRouter.get('/', authenticateToken, async (req: AuthenticatedRequest, res:
   }
 });
 
+// GET /api/reslinks/view/:uniqueId - Public endpoint for tracking views (used by resume badge)
+reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
+  try {
+    const { uniqueId } = req.params;
+    
+    // Find the reslink
+    const reslink = await reslinkRepository.findByUniqueId(uniqueId);
+    if (!reslink) {
+      return res.status(404).send('Reslink not found');
+    }
+
+    // Check if video URL exists
+    if (!reslink.video_url) {
+      return res.status(404).send('Video not available');
+    }
+
+    // Track the detailed view with engagement service
+    await EngagementService.trackView(reslink.id, req);
+
+    // Update the reslink view count and status
+    await reslinkRepository.incrementViewCount(reslink.id);
+
+    // Create slug and redirect to public reslink page instead of video
+    const slug = createSlug(reslink.position, reslink.company);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const publicReslinkUrl = `${frontendUrl}/reslink/${slug}`;
+    
+    res.redirect(publicReslinkUrl);
+
+  } catch (error) {
+    console.error('Error tracking view:', error);
+    res.status(500).send('Error accessing video');
+  }
+});
+
 // GET /api/reslinks/:id - Get reslink by ID
 reslinkRouter.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -206,41 +241,6 @@ reslinkRouter.delete('/:id', authenticateToken, async (req: AuthenticatedRequest
       message: 'Failed to delete reslink',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-  }
-});
-
-// GET /api/view/:uniqueId - Public endpoint for tracking views (used by resume badge)
-reslinkRouter.get('/view/:uniqueId', async (req: Request, res: Response) => {
-  try {
-    const { uniqueId } = req.params;
-    
-    // Find the reslink
-    const reslink = await reslinkRepository.findByUniqueId(uniqueId);
-    if (!reslink) {
-      return res.status(404).send('Reslink not found');
-    }
-
-    // Check if video URL exists
-    if (!reslink.video_url) {
-      return res.status(404).send('Video not available');
-    }
-
-    // Track the detailed view with engagement service
-    await EngagementService.trackView(reslink.id, req);
-
-    // Update the reslink view count and status
-    await reslinkRepository.incrementViewCount(reslink.id);
-
-    // Create slug and redirect to public reslink page instead of video
-    const slug = createSlug(reslink.position, reslink.company);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const publicReslinkUrl = `${frontendUrl}/reslink/${slug}`;
-    
-    res.redirect(publicReslinkUrl);
-
-  } catch (error) {
-    console.error('Error tracking view:', error);
-    res.status(500).send('Error accessing video');
   }
 });
 
